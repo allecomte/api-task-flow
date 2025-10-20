@@ -2,6 +2,7 @@ const express = require("express");
 const { connectDB } = require("./config");
 const dotenv = require("dotenv");
 // Import Routes
+const userRoutes = require('./routes/users.routes');
 const projectRoutes = require('./routes/projects.routes');
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
 //#endregion
 
 //#region Routes
+app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 //#endregion
 

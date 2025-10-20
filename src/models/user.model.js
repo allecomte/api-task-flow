@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     firstname: { type: String, required: true },
     lastname: { type: String, required: true },
-    roles: { type: [Role], default: [Role.ROLE_USER] },
+    roles: { type: [String], enum: Object.values(Role), default: [Role.ROLE_USER] },
     projectsOwned: { type: [mongoose.Schema.Types.ObjectId], ref: 'Project', default: [] },
     projectsMemberOf: { type: [mongoose.Schema.Types.ObjectId], ref: 'Project', default: [] },
     tasksAssigned: { type: [mongoose.Schema.Types.ObjectId], ref: 'Task', default: [] }
