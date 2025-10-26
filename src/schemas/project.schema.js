@@ -9,4 +9,16 @@ const createProjectSchema = Joi.object({
     members: Joi.array().items(checkIdFormat).optional().default([])
 })
 
-module.exports = {createProjectSchema}
+const updateProjectSchema = Joi.object({
+    title: Joi.string().optional(),
+    description: Joi.string().optional(),
+    startAt: Joi.date().optional(),
+    endAt: Joi.date().greater(Joi.ref('startAt')).optional(),
+    members: Joi.array().items(checkIdFormat).optional()
+})
+
+const addMemberToProjectSchema = Joi.object({
+    member: Joi.string().length(24).hex().required()
+})
+
+module.exports = {createProjectSchema: createProjectSchema, updateProjectSchema: updateProjectSchema, addMemberToProjectSchema: addMemberToProjectSchema}

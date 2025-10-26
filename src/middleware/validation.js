@@ -1,8 +1,7 @@
-const Joi = require('joi');
-const mongoose = require('mongoose');
+const Joi = require("joi");
+const mongoose = require("mongoose");
 
-
-const  validateBody = (schema) => {
+const validateBody = (schema) => {
   return (req, res, next) => {
     const { error, value } = schema.validate(req.body);
     if (error) {
@@ -12,17 +11,29 @@ const  validateBody = (schema) => {
     req.body = value; // on peut remplacer body par les valeurs validées
     next();
   };
-}
+};
+
+const validId = (...paramIds) => {
+  return (req, res, next) => {
+    const idsToCheck = paramIds.length ? paramIds : ['id'];
+    for (const paramId of idsToCheck) {
+      if (!mongoose.Types.ObjectId.isValid(req.params[paramId])) {
+        return res.status(404).json({ message: "Resource not found" });
+      }
+    }
+    next();
+  };
+};
 
 const checkIdFormat = Joi.string().custom((value, helpers) => {
-  if (typeof value !== 'string') {
-    return helpers.error('any.invalid');
+  if (typeof value !== "string") {
+    return helpers.error("any.invalid");
   }
-  
+
   if (!mongoose.Types.ObjectId.isValid(value)) {
-    return helpers.error('any.invalid');
+    return helpers.error("any.invalid");
   }
   return value;
-}, 'Id validation');
+}, "Id validation");
 
-module.exports = {validateBody, checkIdFormat}
+module.exports = { validateBody, validId, checkIdFormat };
