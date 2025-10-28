@@ -8,7 +8,7 @@ const validateBody = (schema) => {
       // renvoyer une erreur 400 avec le message de Joi
       return res.status(400).json({ error: error.details[0].message });
     }
-    req.body = value; // on peut remplacer body par les valeurs validées
+    req.body = value; // on remplace le body par les valeurs validées
     next();
   };
 };

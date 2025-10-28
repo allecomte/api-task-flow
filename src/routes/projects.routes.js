@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {getProjects, getProjectById, createProject, updateProject, deleteProject, addOneMemberToOneProject, deleteOneMemberFromOneProject} = require('../controllers/projects.controller');
 const {createProjectSchema, updateProjectSchema, addMemberToProjectSchema} = require('../schemas/project.schema');
-// Access
+// Enums
 const Role = require('../enum/role.enum');
 const Access = require('../enum/access.enum');
 // Middlewares

@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const {checkIdFormat} = require('../middleware/validation')
+const {checkIdFormat} = require('../middleware/validation');
 
 const createProjectSchema = Joi.object({
     title: Joi.string().required(),

@@ -3,7 +3,6 @@ const Project = require("../models/project.model");
 const User = require("../models/user.model");
 const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
 const Role = require("../enum/role.enum");
-const Access = require("../enum/access.enum");
 
 exports.createProject = async (req, res) => {
   try {
@@ -80,7 +79,6 @@ exports.deleteProject = async (req, res, next) => {
   const { id } = req.params;
   try {
     const project = req.project;
-
     await project.deleteOne();
     res.status(200).json({ message: "Project deleted" });
   } catch (error) {
@@ -93,7 +91,6 @@ exports.addOneMemberToOneProject = async (req, res, next) => {
   const { id } = req.params;
   try {
     const project = req.project;
-
     const isUserExists = await existsById(User, req.body.member);
     if (!isUserExists) {
       return res
@@ -118,7 +115,6 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
   const { id, userId } = req.params;
   try {
     const project = req.project;
-    
     const isUserExists = await existsById(User, userId);
     if (!isUserExists) {
       return res
