@@ -37,6 +37,7 @@ const getTaskWithAccess = (strategy, fields = null) => {
       }
       canAccessTask(req.user, task, project, strategy);
       req.task = task;
+      req.project = project;
       next();
     } catch (error) {
       if (error.message === "Not authorized")
@@ -58,7 +59,7 @@ const getTagWithAccess = (strategy, fields = null) => {
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
       }
-      
+
       req.tag = tag;
       next();
     } catch (error) {

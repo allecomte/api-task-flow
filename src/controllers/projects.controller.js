@@ -1,8 +1,10 @@
 const { default: mongoose } = require("mongoose");
+const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
+// Models
 const Project = require("../models/project.model");
 const User = require("../models/user.model");
-const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
 const Role = require("../enum/role.enum");
+const Task = require("../enum/task.enum");
 
 exports.createProject = async (req, res) => {
   try {
@@ -61,6 +63,14 @@ exports.updateProject = async (req, res, next) => {
   try {
     const project = req.project;
     const { title, description, startAt, endAt, members } = req.body;
+    if(members !== undefined){
+      const allMembersExist = await allExistByIds(User, members);
+    if (!allMembersExist) {
+      return res
+        .status(400)
+        .json({ error: "One or several members do not exist" });
+    }
+    }
     Object.assign(project, {
       ...(title && { title }),
       ...(description && { description }),
@@ -79,6 +89,11 @@ exports.deleteProject = async (req, res, next) => {
   const { id } = req.params;
   try {
     const project = req.project;
+    // Don't delete project if it has tasks
+    const tasksCount = await Task.countDocuments({ project: project._id });
+    if (tasksCount > 0) {
+      return res .status(400).json({ error: "Cannot delete project with existing tasks" });
+    }
     await project.deleteOne();
     res.status(200).json({ message: "Project deleted" });
   } catch (error) {
