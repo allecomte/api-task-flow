@@ -128,3 +128,30 @@ exports.deleteTask = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
+
+exports.associateOrDissociateTagToTask = async (req, res) => {
+  const { id, tagId } = req.params;
+  try{
+    const task = req.task;
+    const tag = await Tag.findById(tagId);
+    if(!tag){
+      return res.status(404).json({message: "Tag not found"});
+    }
+    const tagAlreadyAssociated = task.tags.map(String).includes(tagId);
+    if(tagAlreadyAssociated){
+      // Dissociate tag
+      task.tags = task.tags.filter(tid => tid.toString() !== tagId);
+      tag.tasks = tag.tasks.filter(tid => tid.toString() !== id);
+    }else{
+      // Associate tag
+      task.tags.push(tagId);
+      tag.tasks.push(id);
+    }
+    await task.save();
+    await tag.save();
+    return res.status(200).json({message: tagAlreadyAssociated ? "Tag dissociated from task successfully" : "Tag associated to task successfully"});
+  }catch (error) {
+    console.log(`Error POST /tasks/${id}/tags/${tagId} :`, error);
+    return res.status(500).json({ error });
+  }
+}

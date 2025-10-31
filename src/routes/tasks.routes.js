@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {createTask, getTasks ,getTaskById, updateTask, deleteTask} = require('../controllers/tasks.controller');
+const {createTask, getTasks ,getTaskById, updateTask, deleteTask, associateOrDissociateTagToTask} = require('../controllers/tasks.controller');
 const {createTaskSchema, updateTaskSchema} = require('../schemas/task.schema');
 // Middlewares
 const {authToken,authRoles} = require('../middleware/auth');
@@ -18,7 +18,6 @@ router.patch('/:id', validId(), validateBody(updateTaskSchema), getTaskWithAcces
 router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getTaskWithAccess(Access.ONLY_PROJECT_OWNER), deleteTask);
 
 // Associate and dissociate tags to tasks
-// router.post('/:id/tags');
-// router.delete('/:id/tags/:tagId');
+router.post('/:id/tags/:tagId', authRoles([Role.ROLE_MANAGER]), validId('id','tagId'), getTaskWithAccess(Access.ONLY_PROJECT_OWNER),associateOrDissociateTagToTask);
 
 module.exports = router;
