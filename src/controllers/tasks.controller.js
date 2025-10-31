@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
+const {getPaginationInfo} = require("../utils/pagination.utils");
 // Models
 const Project = require("../models/project.model");
 const Task = require("../models/task.model");
@@ -26,7 +27,9 @@ exports.createTask = async (req, res) => {
       return res.status(400).json({ error: "Assignee does not exist" });
     }
     if (!projectAssociated.members.map(String).includes(assignee)) {
-      return res.status(400).json({ error: "Assignee is not a member of the task's project" });
+      return res
+        .status(400)
+        .json({ error: "Assignee is not a member of the task's project" });
     }
     const tagsExist = tags ? await allExistByIds(Tag, tags) : true;
     if (!tagsExist) {
@@ -51,14 +54,17 @@ exports.createTask = async (req, res) => {
 
 exports.getTasks = async (req, res) => {
   try {
-    let filter = {};
+    let filters = {};
     if (req.user.roles.includes(Role.ROLE_USER)) {
-      filter = { assignee: req.user.id };
+      filters = { assignee: req.user.id };
     }
-    const tasks = await Task.find(filter).sort({
-      createdAt: -1,
-    });
-    res.status(200).json(tasks);
+    filters = { ...filters, ...req.filters };
+    const tasks = await Task.find(filters)
+      .sort(req.sort)
+      .skip(req.pagination.skip)
+      .limit(req.pagination.limit);
+    const paginatioInfo = await getPaginationInfo(Task, req.pagination);
+    res.status(200).json({data: tasks, pagination: paginatioInfo});
   } catch (error) {
     console.log("Error GET /tasks :", error);
     return res.status(500).json({ error });
@@ -79,17 +85,31 @@ exports.updateTask = async (req, res) => {
   const { id } = req.params;
   try {
     const task = req.task;
-    const { title, description, dueAt, assignee, tags, priority, state } = req.body;
-    if(req.project.owner.toString() !== req.user.id && (title !== undefined || description !== undefined || dueAt !== undefined || assignee !== undefined || tags !== undefined || priority !== undefined)){
-      return res.status(403).json({error: "Only project owner can update these fields: title, description, due date, assignee, tags, priority"});
+    const { title, description, dueAt, assignee, tags, priority, state } =
+      req.body;
+    if (
+      req.project.owner.toString() !== req.user.id &&
+      (title !== undefined ||
+        description !== undefined ||
+        dueAt !== undefined ||
+        assignee !== undefined ||
+        tags !== undefined ||
+        priority !== undefined)
+    ) {
+      return res
+        .status(403)
+        .json({
+          error:
+            "Only project owner can update these fields: title, description, due date, assignee, tags, priority",
+        });
     }
-    if(assignee !== undefined){
+    if (assignee !== undefined) {
       const assigneeExists = assignee ? await existsById(User, assignee) : true;
       if (!assigneeExists) {
         return res.status(400).json({ error: "Assignee does not exist" });
       }
     }
-    if(tags !== undefined){
+    if (tags !== undefined) {
       const tagsExist = tags ? await allExistByIds(Tag, tags) : true;
       if (!tagsExist) {
         return res
@@ -97,7 +117,10 @@ exports.updateTask = async (req, res) => {
           .json({ error: "One or several tags do not exist" });
       }
     }
-    if (dueAt !== undefined && (req.project.startAt > dueAt || req.project.endAt < dueAt)) {
+    if (
+      dueAt !== undefined &&
+      (req.project.startAt > dueAt || req.project.endAt < dueAt)
+    ) {
       return res.status(400).json({
         error: "Task due date must be within the project's start and end dates",
       });
@@ -131,27 +154,33 @@ exports.deleteTask = async (req, res) => {
 
 exports.associateOrDissociateTagToTask = async (req, res) => {
   const { id, tagId } = req.params;
-  try{
+  try {
     const task = req.task;
     const tag = await Tag.findById(tagId);
-    if(!tag){
-      return res.status(404).json({message: "Tag not found"});
+    if (!tag) {
+      return res.status(404).json({ message: "Tag not found" });
     }
     const tagAlreadyAssociated = task.tags.map(String).includes(tagId);
-    if(tagAlreadyAssociated){
+    if (tagAlreadyAssociated) {
       // Dissociate tag
-      task.tags = task.tags.filter(tid => tid.toString() !== tagId);
-      tag.tasks = tag.tasks.filter(tid => tid.toString() !== id);
-    }else{
+      task.tags = task.tags.filter((tid) => tid.toString() !== tagId);
+      tag.tasks = tag.tasks.filter((tid) => tid.toString() !== id);
+    } else {
       // Associate tag
       task.tags.push(tagId);
       tag.tasks.push(id);
     }
     await task.save();
     await tag.save();
-    return res.status(200).json({message: tagAlreadyAssociated ? "Tag dissociated from task successfully" : "Tag associated to task successfully"});
-  }catch (error) {
+    return res
+      .status(200)
+      .json({
+        message: tagAlreadyAssociated
+          ? "Tag dissociated from task successfully"
+          : "Tag associated to task successfully",
+      });
+  } catch (error) {
     console.log(`Error POST /tasks/${id}/tags/${tagId} :`, error);
     return res.status(500).json({ error });
   }
-}
+};

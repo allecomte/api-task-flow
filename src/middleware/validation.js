@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
+const getFiltersFromQuery = require("../utils/query.utils").getFiltersFromQuery;
 
 const validateBody = (schema) => {
   return (req, res, next) => {
@@ -11,6 +12,19 @@ const validateBody = (schema) => {
     req.body = value; // on remplace le body par les valeurs validées
     next();
   };
+};
+
+const validateQuery = (schema) => {
+  return (req, res, next) => {
+    const { error, value } = schema.validate(req.query, { abortEarly: false });
+    if (error) {
+      // renvoyer une erreur 400 avec le message de Joi
+      return res.status(400).json({ error: error.details[0].message });
+    }
+    req.query = value;
+    getFiltersFromQuery(req, value);
+    next();
+  }
 };
 
 const validId = (...paramIds) => {
@@ -36,4 +50,4 @@ const checkIdFormat = Joi.string().custom((value, helpers) => {
   return value;
 }, "Id validation");
 
-module.exports = { validateBody, validId, checkIdFormat };
+module.exports = { validateBody, validId, validateQuery, checkIdFormat };
