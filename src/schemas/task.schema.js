@@ -9,7 +9,7 @@ const createTaskSchema = Joi.object({
   priority: Joi.string()
     .valid(...Object.values(Priority))
     .required(),
-  assignees: Joi.array().items(checkIdFormat).optional().default([]),
+  assignee: checkIdFormat.required(),
   project: checkIdFormat.required(),
   tags: Joi.array().items(checkIdFormat).optional().default([]),
 });
@@ -21,7 +21,7 @@ const updateTaskSchema = Joi.object({
   priority: Joi.string()
     .valid(...Object.values(Priority))
     .optional(),
-  assignees: Joi.array().items(checkIdFormat).optional(),
+  assignee: checkIdFormat.required(),
   tags: Joi.array().items(checkIdFormat).optional(),
 });
 

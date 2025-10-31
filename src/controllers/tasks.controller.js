@@ -1,15 +1,17 @@
 const { default: mongoose } = require("mongoose");
 const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
 // Models
-const Task = require("../models/task.model");
 const Project = require("../models/project.model");
+const Task = require("../models/task.model");
 const User = require("../models/user.model");
 const Tag = require("../models/tag.model");
+// Enums
+const Role = require("../enum/role.enum");
 
 exports.createTask = async (req, res) => {
   try {
     const { project, assignee, tags, dueAt } = req.body;
-    const projectAssociated = await Task.findById(project);
+    const projectAssociated = await Project.findById(project);
     if (!projectAssociated) {
       return res.status(400).json({ error: "Project does not exist" });
     }
@@ -22,6 +24,9 @@ exports.createTask = async (req, res) => {
     const assigneeExists = assignee ? await existsById(User, assignee) : true;
     if (!assigneeExists) {
       return res.status(400).json({ error: "Assignee does not exist" });
+    }
+    if (!projectAssociated.members.map(String).includes(assignee)) {
+      return res.status(400).json({ error: "Assignee is not a member of the task's project" });
     }
     const tagsExist = tags ? await allExistByIds(Tag, tags) : true;
     if (!tagsExist) {
@@ -47,6 +52,7 @@ exports.createTask = async (req, res) => {
 exports.getTasks = async (req, res) => {
   try {
     let filter = {};
+    console.log(req.user.roles);
     if (req.user.roles.includes(Role.ROLE_USER)) {
       filter = { assignee: req.user.id };
     }
@@ -75,8 +81,8 @@ exports.updateTask = async (req, res, next) => {
   try {
     const task = req.task;
     const { title, description, dueAt, assignee, tags, priority, state } = req.body;
-    if(task.project.owner.toString() !== req.user.id && title !== undefined && description !== undefined && dueAt !== undefined && assignee !== undefined && tags !== undefined && priority !== undefined){
-      return res.status(403).json({error: "Only project owner can update all task fields"});
+    if(req.project.owner.toString() !== req.user.id && (title !== undefined || description !== undefined || dueAt !== undefined || assignee !== undefined || tags !== undefined || priority !== undefined)){
+      return res.status(403).json({error: "Only project owner can update these fields: title, description, due date, assignee, tags, priority"});
     }
     if(assignee !== undefined){
       const assigneeExists = assignee ? await existsById(User, assignee) : true;
@@ -91,6 +97,11 @@ exports.updateTask = async (req, res, next) => {
           .status(400)
           .json({ error: "One or several tags do not exist" });
       }
+    }
+    if (dueAt !== undefined && (req.project.startAt > dueAt || req.project.endAt < dueAt)) {
+      return res.status(400).json({
+        error: "Task due date must be within the project's start and end dates",
+      });
     }
     Object.assign(task, {
       ...(title && { title }),
@@ -117,12 +128,4 @@ exports.deleteTask = async (req, res, next) => {
     console.log(`Error DELETE /tasks/${id} :`, error);
     return res.status(500).json({ error });
   }
-};
-
-module.exports = {
-  createTask,
-  getTasks,
-  getTaskById,
-  updateTask,
-  deleteTask,
 };

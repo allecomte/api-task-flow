@@ -11,11 +11,3 @@ exports.getTagById = async (req, res) => {};
 exports.updateTag = async (req, res, next) => {};
 
 exports.deleteTag = async (req, res, next) => {};
-
-module.exports = {
-    createTag,
-    getTags,
-    getTagById,
-    updateTag,
-    deleteTag
-}

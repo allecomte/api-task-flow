@@ -3,8 +3,9 @@ const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
 // Models
 const Project = require("../models/project.model");
 const User = require("../models/user.model");
+const Task = require("../models/task.model");
+// Enums
 const Role = require("../enum/role.enum");
-const Task = require("../enum/task.enum");
 
 exports.createProject = async (req, res) => {
   try {

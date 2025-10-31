@@ -17,4 +17,8 @@ router.get('/:id', validId(), getTaskWithAccess(Access.ONLY_PROJECT_OWNER), getT
 router.patch('/:id', validId(), validateBody(updateTaskSchema), getTaskWithAccess(Access.ASSIGNEE_AND_PROJECT_OWNER), updateTask);
 router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getTaskWithAccess(Access.ONLY_PROJECT_OWNER), deleteTask);
 
+// Associate and dissociate tags to tasks
+// router.post('/:id/tags');
+// router.delete('/:id/tags/:tagId');
+
 module.exports = router;
