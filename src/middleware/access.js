@@ -2,7 +2,11 @@ const { default: mongoose } = require("mongoose");
 const Project = require("../models/project.model");
 const Task = require("../models/task.model");
 const Tag = require("../models/tag.model");
-const { canAccessProject, canAccessTask } = require("../utils/access.utils");
+const {
+  canAccessProject,
+  canAccessTask,
+  canAccessTag,
+} = require("../utils/access.utils");
 
 const getProjectWithAccess = (strategy, fields = null) => {
   return async (req, res, next) => {
@@ -49,18 +53,29 @@ const getTaskWithAccess = (strategy, fields = null) => {
 
 const getTagWithAccess = (strategy, fields = null) => {
   return async (req, res, next) => {
-    const { id } = req.params;
+    const { id, projectId } = req.params;
     try {
-      const tag = await Tag.findById(id, fields);
-      if (!tag) {
-        return res.status(404).json({ message: "Tag not found" });
+      let project = null;
+      if (projectId) {
+        project = await Project.findById(projectId);
+        if (!project) {
+          return res.status(404).json({ message: "Project not found" });
+        }
+      } else if (id) {
+        const tag = await Tag.findById(id, fields);
+        if (!tag) {
+          return res.status(404).json({ message: "Tag not found" });
+        }
+        project = await Project.findById(tag.project);
+        if (!project) {
+          return res.status(404).json({ message: "Project not found" });
+        }
+        req.tag = tag;
       }
-      const project = await Project.findById(tag.project);
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
+      if (project) {
+        canAccessTag(req.user, project, strategy);
+        req.project = project;
       }
-
-      req.tag = tag;
       next();
     } catch (error) {
       if (error.message === "Not authorized")
@@ -70,4 +85,4 @@ const getTagWithAccess = (strategy, fields = null) => {
   };
 };
 
-module.exports = { getProjectWithAccess, getTaskWithAccess };
+module.exports = { getProjectWithAccess, getTaskWithAccess, getTagWithAccess };

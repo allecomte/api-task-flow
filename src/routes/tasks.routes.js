@@ -13,7 +13,7 @@ const Access = require('../enum/access.enum');
 router.use(authToken);
 router.post('/', authRoles([Role.ROLE_MANAGER]), validateBody(createTaskSchema), createTask);
 router.get('/', getTasks);
-router.get('/:id', validId(), getTaskWithAccess(Access.ONLY_PROJECT_OWNER), getTaskById);
+router.get('/:id', validId(), getTaskWithAccess(Access.ASSIGNEE_AND_MANAGERS), getTaskById);
 router.patch('/:id', validId(), validateBody(updateTaskSchema), getTaskWithAccess(Access.ASSIGNEE_AND_PROJECT_OWNER), updateTask);
 router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getTaskWithAccess(Access.ONLY_PROJECT_OWNER), deleteTask);
 

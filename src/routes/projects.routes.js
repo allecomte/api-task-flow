@@ -20,4 +20,6 @@ router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getProjectWithA
 router.post('/:id/members', authRoles([Role.ROLE_MANAGER]), validId(), getProjectWithAccess(Access.ALL_MANAGERS), addOneMemberToOneProject);
 router.delete('/:id/members/:userId', authRoles([Role.ROLE_MANAGER]), validId('id','userId'), validateBody(addMemberToProjectSchema), getProjectWithAccess(Access.ALL_MANAGERS), deleteOneMemberFromOneProject);
 
+
+
 module.exports = router;

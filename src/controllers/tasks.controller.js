@@ -52,7 +52,6 @@ exports.createTask = async (req, res) => {
 exports.getTasks = async (req, res) => {
   try {
     let filter = {};
-    console.log(req.user.roles);
     if (req.user.roles.includes(Role.ROLE_USER)) {
       filter = { assignee: req.user.id };
     }
@@ -76,7 +75,7 @@ exports.getTaskById = async (req, res) => {
   }
 };
 
-exports.updateTask = async (req, res, next) => {
+exports.updateTask = async (req, res) => {
   const { id } = req.params;
   try {
     const task = req.task;
@@ -119,7 +118,7 @@ exports.updateTask = async (req, res, next) => {
   }
 };
 
-exports.deleteTask = async (req, res, next) => {
+exports.deleteTask = async (req, res) => {
   const { id } = req.params;
   try {
     await req.task.deleteOne();

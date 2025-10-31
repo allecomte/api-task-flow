@@ -27,6 +27,7 @@ function canAccessProject(user, project, strategy) {
 function canAccessTask(user, task, project, strategy) {
   const isProjectOwner =
     (project.owner ? project.owner.toString() : "") === user.id;
+  const isManager = user.roles.includes(Role.ROLE_MANAGER);
   const isAssignee =
     (task.assignee ? task.assignee.toString() : "") === user.id;
   let hasAccess = false;
@@ -36,6 +37,9 @@ function canAccessTask(user, task, project, strategy) {
       break;
     case Access.ASSIGNEE_AND_PROJECT_OWNER:
       hasAccess = isProjectOwner || isAssignee;
+      break;
+    case Access.ASSIGNEE_AND_MANAGERS:
+      hasAccess = isManager || isAssignee;
       break;
     default:
       hasAccess = isProjectOwner;
@@ -48,14 +52,15 @@ function canAccessTask(user, task, project, strategy) {
 function canAccessTag(user, project, strategy) {
   const isProjectOwner =
     (project.owner ? project.owner.toString() : "") === user.id;
+  const isManager = user.roles.includes(Role.ROLE_MANAGER);
   const isMember = project.members.map(String).includes(user.id);
   let hasAccess = false;
   switch (strategy) {
     case Access.ONLY_PROJECT_OWNER:
       hasAccess = isProjectOwner;
       break;
-    case Access.MEMBERS_AND_PROJECT_OWNER:
-      hasAccess = isMember || isProjectOwner;
+    case Access.MEMBERS_AND_MANAGERS:
+      hasAccess = isMember || isManager;
       break;
     default:
       hasAccess = isProjectOwner;
