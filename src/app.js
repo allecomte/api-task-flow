@@ -1,5 +1,4 @@
 const express = require("express");
-const { connectDB } = require("./config");
 const dotenv = require("dotenv");
 // Import Routes
 const userRoutes = require('./routes/users.routes');
@@ -10,9 +9,6 @@ const tagRoutes = require('./routes/tags.routes');
 dotenv.config();
 
 const app = express();
-
-//#region Configuration
-connectDB();
 
 // Permet d'accéder au corps de la requête en JSON
 app.use(express.json());

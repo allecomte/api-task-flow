@@ -1,6 +1,10 @@
 const http = require('http');
 const app = require('./app');
 const {getPort,errorHandler} = require('./config');
+const { connectDB } = require("./config");
+
+//#region Configuration
+connectDB();
 
 const port = getPort();
 app.set('port', port);
