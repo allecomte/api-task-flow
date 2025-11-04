@@ -37,7 +37,7 @@ exports.createTask = async (req, res) => {
         .status(400)
         .json({ error: "One or several tags do not exist" });
     }
-    if (projectAssociated.startAt > dueAt || projectAssociated.endAt < dueAt) {
+    if (projectAssociated.startAt > dueAt || (projectAssociated.endAt !== null && projectAssociated.endAt < dueAt)) {
       return res.status(400).json({
         error: "Task due date must be within the project's start and end dates",
       });
@@ -119,7 +119,7 @@ exports.updateTask = async (req, res) => {
     }
     if (
       dueAt !== undefined &&
-      (req.project.startAt > dueAt || req.project.endAt < dueAt)
+      (req.project.startAt > dueAt || (req.project.endAt !== null && req.project.endAt < dueAt))
     ) {
       return res.status(400).json({
         error: "Task due date must be within the project's start and end dates",
