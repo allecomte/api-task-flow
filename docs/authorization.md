@@ -40,11 +40,11 @@ Il sert de référence pour la logique de sécurité dans le back-end et la visi
 |  Modifier une tâche   | 🟠 (si assigné à la tâche et peut uniquement modifier l'attribut "state") | 🟠 (si propriétaire du projet auquel appartient la tâche) | 
 |  Supprimer une tâche   | 🚫 | 🟠 (si propriétaire du projet auquel appartient la tâche) | 
 | Lire une tâche | 🟠 (si assigné à la tâche) | ✅ | 
-| Créer un tag | 🚫 | 🟠 (si propriétaire du projet auquel appartient le tag) | 
-| Modifier un tag | 🚫 | 🟠 (si propriétaire du projet auquel appartient le tag) | 
-| Supprimer un tag | 🚫 | 🟠 (si propriétaire du projet auquel appartient le tag) | 
+| Créer un tag | 🟠 (si membre du projet auquel appartient le tag) | 🟠 (si propriétaire du projet auquel appartient le tag) | 
+| Modifier un tag | 🟠 (si membre du projet auquel appartient le tag) | 🟠 (si propriétaire du projet auquel appartient le tag) | 
+| Supprimer un tag | 🟠 (si membre du projet auquel appartient le tag) | 🟠 (si propriétaire du projet auquel appartient le tag) | 
 | Lire un tag | 🟠 (si membre du projet auquel appartient le tag) | 🟠 (si propriétaire du projet auquel appartient le tag) | 
-| Associer/dissocier un tag à une tâche | 🚫 | 🟠 (si propriétaire du projet auquel appartient le tag) | 
+| Associer/dissocier un tag à une tâche | 🟠 (si membre du projet auquel appartient le tag) | 🟠 (si propriétaire du projet auquel appartient le tag) | 
 
 ---
 

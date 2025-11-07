@@ -11,9 +11,9 @@ const Access = require('../enum/access.enum');
 
 router.use(authToken);
 
-router.post('/projects/:projectId/tags', validId('projectId'), validateBody(createOrUpdateTagSchema), getTagWithAccess(Access.ONLY_PROJECT_OWNER), createTag);
+router.post('/projects/:projectId/tags', validId('projectId'), validateBody(createOrUpdateTagSchema), getTagWithAccess(Access.MEMBERS_AND_MANAGERS), createTag);
 router.get('/projects/:projectId/tags', validId('projectId'), getTagWithAccess(Access.MEMBERS_AND_MANAGERS), getTagsByProject);
-router.patch('/tags/:id', validId(), getTagWithAccess(Access.ONLY_PROJECT_OWNER), updateTag);
-router.delete('/tags/:id', validId(), getTagWithAccess(Access.ONLY_PROJECT_OWNER), deleteTag);
+router.patch('/tags/:id', validId(), getTagWithAccess(Access.MEMBERS_AND_MANAGERS), updateTag);
+router.delete('/tags/:id', validId(), getTagWithAccess(Access.MEMBERS_AND_MANAGERS), deleteTag);
 
 module.exports = router;

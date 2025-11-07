@@ -2,7 +2,6 @@ const { default: mongoose } = require('mongoose');
 
 const connectDB = async () => {
     try {
-        console.log('mongodb+srv://'+process.env.DB_USER+':'+process.env.DB_PASSWORD+'@cluster0.bjlx6z4.mongodb.net/'+process.env.DB_NAME+'?retryWrites=true&w=majority&appName=Cluster0');
             await mongoose.connect('mongodb+srv://'+process.env.DB_USER+':'+process.env.DB_PASSWORD+'@cluster0.bjlx6z4.mongodb.net/'+process.env.DB_NAME+'?retryWrites=true&w=majority&appName=Cluster0',
                 { useNewUrlParser: true,
                 useUnifiedTopology: true }
