@@ -1,7 +1,5 @@
 const { default: mongoose } = require("mongoose");
-const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
 // Models
-const Project = require("../models/project.model");
 const Task = require("../models/task.model");
 const Tag = require("../models/tag.model");
 
@@ -13,7 +11,10 @@ exports.createTag = async (req, res) => {
       name,
       project: project.id,
     });
-    res.status(201).json(await tag.save());
+    const tagCreated = await tag.save();
+    project.tags.push(tagCreated._id);
+    await project.save();
+    res.status(201).json(tagCreated);
   } catch (error) {
     console.log(`Error POST /projects/${project.id}/tags :`, error);
     return res.status(500).json({ error });
@@ -49,6 +50,15 @@ exports.deleteTag = async (req, res) => {
     const { id } = req.params;
     try {
     await req.tag.deleteOne();
+    const project = req.project;
+    // Remove tag from its project's tags array
+    project.tags = project.tags.filter((tagId) => tagId.toString() !== id);
+    await project.save();
+    // Remove tag from all its associated tasks
+    await Task.updateMany(
+      { tags: id },
+      { $pull: { tags: id } }
+    );
     res.status(200).json({ message: "Tag deleted successfully" });
   } catch (error) {
     console.log(`Error DELETE tags/${id} :`, error);

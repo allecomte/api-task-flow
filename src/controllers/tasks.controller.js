@@ -8,6 +8,8 @@ const User = require("../models/user.model");
 const Tag = require("../models/tag.model");
 // Enums
 const Role = require("../enum/role.enum");
+// Services
+const { addOneTaskToUser, removeOneTaskFromUser } = require("../services/user.service");
 
 exports.createTask = async (req, res) => {
   try {
@@ -26,7 +28,7 @@ exports.createTask = async (req, res) => {
     if (!assigneeExists) {
       return res.status(400).json({ error: "Assignee does not exist" });
     }
-    if (!projectAssociated.members.map(String).includes(assignee)) {
+    if (assignee !== undefined && !projectAssociated.members.map(String).includes(assignee)) {
       return res
         .status(400)
         .json({ error: "Assignee is not a member of the task's project" });
@@ -45,7 +47,13 @@ exports.createTask = async (req, res) => {
     const task = new Task({
       ...req.body,
     });
-    res.status(201).json(await task.save());
+    const taskCreated = await task.save();
+    projectAssociated.tasks.push(taskCreated._id);
+    if(assignee) {
+      await addOneTaskToUser(assignee, taskCreated._id);
+    }
+    await projectAssociated.save();
+    res.status(201).json(taskCreated);
   } catch (error) {
     console.log("Error POST /tasks :", error);
     return res.status(500).json({ error });
@@ -108,6 +116,20 @@ exports.updateTask = async (req, res) => {
       if (!assigneeExists) {
         return res.status(400).json({ error: "Assignee does not exist" });
       }
+      if (!req.project.members.map(String).includes(assignee)) {
+        return res
+          .status(400)
+          .json({ error: "Assignee is not a member of the task's project" });
+      }
+      if(task.assignee && task.assignee.toString() !== assignee){
+        // Remove task from previous assignee
+        removeOneTaskFromUser(task.assignee, id);
+        // Add task to new assignee
+        addOneTaskToUser(assignee, id);
+      }else if (!task.assignee){
+        // Add task to new assignee
+        addOneTaskToUser(assignee, id);
+      }
     }
     if (tags !== undefined) {
       const tagsExist = tags ? await allExistByIds(Tag, tags) : true;
@@ -144,7 +166,12 @@ exports.updateTask = async (req, res) => {
 exports.deleteTask = async (req, res) => {
   const { id } = req.params;
   try {
+    const task = req.task;
+    const project = req.project;
+    await removeOneTaskFromUser(task.assignee, id);
     await req.task.deleteOne();
+    project.tasks = project.tasks.filter((taskId) => taskId.toString() !== id);
+    await project.save();
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     console.log(`Error DELETE /tasks/${id} :`, error);
@@ -163,15 +190,19 @@ exports.associateOrDissociateTagToTask = async (req, res) => {
     const tagAlreadyAssociated = task.tags.map(String).includes(tagId);
     if (tagAlreadyAssociated) {
       // Dissociate tag
-      task.tags = task.tags.filter((tid) => tid.toString() !== tagId);
-      tag.tasks = tag.tasks.filter((tid) => tid.toString() !== id);
+      await Task.findByIdAndUpdate(id, { $pull: { tags: tagId } });
+      await Tag.findByIdAndUpdate(tag._id, { $pull: { tasks: id } });
+      // task.tags = task.tags.filter((tid) => tid.toString() !== tagId);
+      // tag.tasks = tag.tasks.filter((tid) => tid.toString() !== id);
     } else {
       // Associate tag
-      task.tags.push(tagId);
-      tag.tasks.push(id);
+      await Task.findByIdAndUpdate(id, { $addToSet: { tags: tagId } });
+      await Tag.findByIdAndUpdate(tag._id, { $addToSet: { tasks: id } });
+      // task.tags.push(tagId);
+      // tag.tasks.push(id);
     }
-    await task.save();
-    await tag.save();
+    // await task.save();
+    // await tag.save();
     return res
       .status(200)
       .json({

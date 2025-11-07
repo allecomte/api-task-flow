@@ -14,7 +14,6 @@ const updateProjectSchema = Joi.object({
     description: Joi.string().optional(),
     startAt: Joi.date().optional(),
     endAt: Joi.date().greater(Joi.ref('startAt')).optional(),
-    members: Joi.array().items(checkIdFormat).optional()
 })
 
 const addMemberToProjectSchema = Joi.object({
