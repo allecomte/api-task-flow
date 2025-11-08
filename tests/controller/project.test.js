@@ -90,7 +90,7 @@ describe("Project middleware and controller", () => {
    */
   it("should not allow a user to access a project they are not a member of", async () => {
     req = { params: { id: project._id.toString() }, user: userNotMember };
-    await getProjectWithAccess(Access.MEMBERS_AND_MANAGERS)(req, res, next);
+    await getProjectWithAccess(Access.MEMBERS_AND_PROJECT_OWNER)(req, res, next);
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({ message: "Not authorized" });
   });
@@ -102,7 +102,7 @@ describe("Project middleware and controller", () => {
    */
   it("should allow a member to access the project", async () => {
     req = { params: { id: project._id.toString() }, user: member };
-    await getProjectWithAccess(Access.MEMBERS_AND_MANAGERS)(req, res, next);
+    await getProjectWithAccess(Access.MEMBERS_AND_PROJECT_OWNER)(req, res, next);
     expect(req.project).toBeDefined();
     expect(req.project.title).toBe(project.title);
     expect(next).toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe("Project middleware and controller", () => {
    * Result expected : access granted for the project's owner
    * Testing project.controller : updateProject()
    */
-  it("should update a project by its owner", async () => {
+  it("should allow to update a project by its owner", async () => {
     req = {
       params: { id: project._id.toString() },
       body: { title: "Project test" },
@@ -206,7 +206,7 @@ describe("Project middleware and controller", () => {
    * Result expected : access granted for the project's owner
    * Testing project.controller : deleteOneMemberFromOneProject()
    */
-  it("should delete a project by its owner", async () => {
+  it("should allow a owner to delete his project", async () => {
     req = { params: { id: project._id.toString() }, user: managerNotOwner };
     await getProjectWithAccess(Access.ALL_MANAGERS)(req, res, next);
     expect(next).toHaveBeenCalled();

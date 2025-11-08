@@ -7,7 +7,6 @@ const Tag = require("../../src/models/tag.model");
 // Middlewares
 const { createAccessMiddleware } = require("../../src/middleware/access");
 const { getTaskWithAccess } = createAccessMiddleware({ Project, Task });
-const { validateQuery } = require("../../src/middleware/validation");
 // Controllers
 const {
   createTask,

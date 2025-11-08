@@ -7,7 +7,7 @@ function canAccessProject(user, project, strategy) {
   const isOwner = (project.owner ? project.owner.toString() : "") === user.id;
   let hasAccess = false;
   switch (strategy) {
-    case Access.MEMBERS_AND_MANAGERS:
+    case Access.MEMBERS_AND_PROJECT_OWNER:
       hasAccess = isManager || isMember;
       break;
     case Access.ALL_MANAGERS:
@@ -52,15 +52,14 @@ function canAccessTask(user, task, project, strategy) {
 function canAccessTag(user, project, strategy) {
   const isProjectOwner =
     (project.owner ? project.owner.toString() : "") === user.id;
-  const isManager = user.roles.includes(Role.ROLE_MANAGER);
   const isMember = project.members.map(String).includes(user.id);
   let hasAccess = false;
   switch (strategy) {
     case Access.ONLY_PROJECT_OWNER:
       hasAccess = isProjectOwner;
       break;
-    case Access.MEMBERS_AND_MANAGERS:
-      hasAccess = isMember || isManager;
+    case Access.MEMBERS_AND_PROJECT_OWNER:
+      hasAccess = isMember || isProjectOwner;
       break;
     default:
       hasAccess = isProjectOwner;
