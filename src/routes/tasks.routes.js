@@ -2,10 +2,14 @@ const express = require('express');
 const router = express.Router();
 const {createTask, getTasks ,getTaskById, updateTask, deleteTask, associateOrDissociateTagToTask} = require('../controllers/tasks.controller');
 const {createTaskSchema, updateTaskSchema, taskQueryFilterSchema} = require('../schemas/task.schema');
+// Models
+const Project = require('../models/project.model');
+const Task = require('../models/task.model');
 // Middlewares
 const {authToken,authRoles} = require('../middleware/auth');
 const {validateBody, validId, validateQuery} = require('../middleware/validation');
-const {getTaskWithAccess} = require('../middleware/access');
+const {createAccessMiddleware} = require('../middleware/access');
+const { getTaskWithAccess } = createAccessMiddleware({ Project, Task });
 // Enums
 const Role = require('../enum/role.enum');
 const Access = require('../enum/access.enum');

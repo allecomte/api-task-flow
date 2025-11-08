@@ -8,7 +8,8 @@ const {
   canAccessTag,
 } = require("../utils/access.utils");
 
-const getProjectWithAccess = (strategy, fields = null) => {
+function createAccessMiddleware({Project, Task, Tag}){
+  const getProjectWithAccess = (strategy, fields = null) => {
   return async (req, res, next) => {
     const { id } = req.params;
     try {
@@ -85,4 +86,9 @@ const getTagWithAccess = (strategy, fields = null) => {
   };
 };
 
-module.exports = { getProjectWithAccess, getTaskWithAccess, getTagWithAccess };
+return { getProjectWithAccess, getTaskWithAccess, getTagWithAccess };
+} 
+
+
+
+module.exports = { createAccessMiddleware  };

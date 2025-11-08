@@ -2,13 +2,13 @@ const request = require("supertest");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const mongoose = require("mongoose");
 
-const app = require("../src/app");
-const User = require("../src/models/user.model");
-const Project = require("../src/models/project.model");
-const { getTokenForUser } = require("./helpers");
+const app = require("../../src/app");
+const User = require("../../src/models/user.model");
+const Project = require("../../src/models/project.model");
+const { getTokenForUser } = require("../helpers");
 // Fixture data
-const { users, managers } = require("./api/user.fixture");
-const { projects } = require("./api/project.fixture");
+const { users, managers } = require("../fixtures/user.fixture");
+const { projects } = require("../fixtures/project.fixture");
 
 describe("Project API", () => {
   let owner, manager, member1, member2, userNotMember, project;
@@ -72,21 +72,4 @@ describe("Project API", () => {
       console.log(res.body);
     expect(res.statusCode).toEqual(200);
   });
-
-
-  // it("should update a project by its owner", async () => {});
-
-  // it("should not allow a non-owner to update a project", async () => {});
-
-  // it("should delete a project by its owner", async () => {});
-
-  // it("should not allow a non-owner to delete a project", async () => {});
-
-  // it("should add a member to a project by its owner", async () => {});
-
-  // it("should not allow a non-owner to add a member to a project", async () => {});
-
-  // it("should remove a member from a project by its owner", async () => {});
-
-  // it("should not allow a non-owner to remove a member from a project", async () => {});
 });

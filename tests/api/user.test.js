@@ -1,7 +1,7 @@
 const request = require("supertest");
 
-const app = require("../src/app");
-const Role = require("../src/enum/role.enum");
+const app = require("../../src/app");
+const Role = require("../../src/enum/role.enum");
 
 describe("User Registration and Login", () => {
   it("should register a new user", async () => {

@@ -2,10 +2,15 @@ const express = require('express');
 const router = express.Router();
 const {createTag, getTagsByProject: getTagsByProject, updateTag, deleteTag} = require('../controllers/tags.controller');
 const {createOrUpdateTagSchema} = require('../schemas/tag.schema');
+// Models
+const Project = require('../models/project.model');
+const Task = require('../models/tag.model');
+const Tag = require('../models/tag.model');
 // Middlewares
 const {authToken} = require('../middleware/auth');
 const {validateBody, validId} = require('../middleware/validation');
-const {getTagWithAccess} = require('../middleware/access');
+const {createAccessMiddleware} = require('../middleware/access');
+const { getTagWithAccess } = createAccessMiddleware({ Project, Task, Tag });
 // Enums
 const Access = require('../enum/access.enum');
 

@@ -5,19 +5,18 @@ const {createProjectSchema, updateProjectSchema, addMemberToProjectSchema} = req
 // Enums
 const Role = require('../enum/role.enum');
 const Access = require('../enum/access.enum');
+// Models
+const Project = require('../models/project.model');
 // Middlewares
 const {authToken,authRoles} = require('../middleware/auth');
 const {validateBody, validId} = require('../middleware/validation');
-// const {getProjectWithAccess} = require('../middleware/access');
-const {createAccessMiddleware} = require('../middleware/access_test');
-const Project = require('../models/project.model');
+const {createAccessMiddleware} = require('../middleware/access');
 const { getProjectWithAccess } = createAccessMiddleware({ Project });
 
 router.use(authToken);
 router.post('/', authRoles([Role.ROLE_MANAGER]), validateBody(createProjectSchema), createProject);
 router.get('/', getProjects);
 router.get('/:id', validId(), getProjectWithAccess(Access.MEMBERS_AND_MANAGERS, "title description startAt endAt members"), getProjectById);
-// router.get('/:id', validId(), getProjectWithAccess(Access.MEMBERS_AND_MANAGERS, "title description startAt endAt members"), getProjectById);
 router.patch('/:id', authRoles([Role.ROLE_MANAGER]), validId(), validateBody(updateProjectSchema), getProjectWithAccess(Access.ONLY_MANAGER_OWNER), updateProject);
 router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getProjectWithAccess(Access.ONLY_MANAGER_OWNER), deleteProject);
 
