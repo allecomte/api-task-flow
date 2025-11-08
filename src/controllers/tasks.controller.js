@@ -67,11 +67,13 @@ exports.getTasks = async (req, res) => {
       filters = { assignee: req.user.id };
     }
     filters = { ...filters, ...req.filters };
+    console.log('filters', filters)
     const tasks = await Task.find(filters)
       .sort(req.sort)
       .skip(req.pagination.skip)
       .limit(req.pagination.limit);
     const paginatioInfo = await getPaginationInfo(Task, req.pagination);
+    console.log('data',tasks)
     res.status(200).json({data: tasks, pagination: paginatioInfo});
   } catch (error) {
     console.log("Error GET /tasks :", error);
@@ -192,17 +194,11 @@ exports.associateOrDissociateTagToTask = async (req, res) => {
       // Dissociate tag
       await Task.findByIdAndUpdate(id, { $pull: { tags: tagId } });
       await Tag.findByIdAndUpdate(tag._id, { $pull: { tasks: id } });
-      // task.tags = task.tags.filter((tid) => tid.toString() !== tagId);
-      // tag.tasks = tag.tasks.filter((tid) => tid.toString() !== id);
     } else {
       // Associate tag
       await Task.findByIdAndUpdate(id, { $addToSet: { tags: tagId } });
       await Tag.findByIdAndUpdate(tag._id, { $addToSet: { tasks: id } });
-      // task.tags.push(tagId);
-      // tag.tasks.push(id);
     }
-    // await task.save();
-    // await tag.save();
     return res
       .status(200)
       .json({

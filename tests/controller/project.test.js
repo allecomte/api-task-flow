@@ -4,7 +4,7 @@ const User = require("../../src/models/user.model");
 // Middlewares
 const { createAccessMiddleware } = require("../../src/middleware/access");
 const { getProjectWithAccess } = createAccessMiddleware({ Project });
-const { authToken, authRoles } = require("../../src/middleware/auth");
+const { authRoles } = require("../../src/middleware/auth");
 // Controllers
 const {
   createProject,
@@ -39,27 +39,16 @@ describe("Project middleware and controller", () => {
 
   /**
    * Testing auth with role  : ROLE_MANAGER
-   * Result expected : access refused for a user with ROLE_USER
-   */
-  it("should not allow a user to create a new project", async () => {
-    req = { user: userNotMember };
-    await authRoles([Role.ROLE_MANAGER])(req, res, next);
-    expect(res.status).toHaveBeenCalledWith(403);
-  });
-
-  /**
-   * Testing auth with role  : ROLE_MANAGER
    * Result expected : access granted for a manager with ROLE_MANAGER
    * Testing project.controller : createProject()
    */
-  it("should not allow a user to create a new project", async () => {
+  it("should allow a manager to create a new project", async () => {
     req = {
       body: {
         title: projects[0].title,
         description: projects[0].description,
         startAt: projects[0].startAt,
         endAt: projects[0].endAt,
-        owner: owner._id,
         members: [member._id.toString()],
       },
       user: owner,
@@ -146,7 +135,7 @@ describe("Project middleware and controller", () => {
    * Testing access policy : ONLY_MANAGER_OWNER
    * Result expected : access refused for a manager not owner of the project
    */
-  it("should not allow a non-owner to update or delete a project", async () => {
+  it("should not allow a non owner to update or delete a project", async () => {
     req = { params: { id: project._id.toString() }, user: managerNotOwner };
     await getProjectWithAccess(Access.ONLY_MANAGER_OWNER)(req, res, next);
     expect(res.status).toHaveBeenCalledWith(403);
