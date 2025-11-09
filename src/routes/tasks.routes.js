@@ -29,6 +29,8 @@ router.use(authToken);
  *      post:
  *          summary: Create a new task
  *          tags: [Tasks]
+ *          security:
+ *              - bearerAuth: []
  *          requestBody:
  *              required: true
  *              content:
@@ -79,6 +81,8 @@ router.post('/', authRoles([Role.ROLE_MANAGER]), validateBody(createTaskSchema),
  *      get:
  *          summary: List the tasks
  *          tags: [Tasks]
+ *          security:
+ *              - bearerAuth: []
  *          responses:
  *              200:
  *                  description: Successfully get the list of tasks
@@ -99,6 +103,8 @@ router.get('/', validateQuery(taskQueryFilterSchema), getTasks);
  *      get:
  *          summary: Get one task
  *          tags: [Tasks]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -125,6 +131,8 @@ router.get('/:id', validId(), getTaskWithAccess(Access.ASSIGNEE_AND_MANAGERS), g
  *      patch:
  *          summary: Update one task
  *          tags: [Tasks]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -175,6 +183,8 @@ router.patch('/:id', validId(), validateBody(updateTaskSchema), getTaskWithAcces
  *      delete:
  *          summary: Delete one task
  *          tags: [Tasks]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -203,6 +213,8 @@ router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getTaskWithAcce
  *      post:
  *          summary: Associate or dissociate a tag to a task
  *          tags: [Tasks]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path

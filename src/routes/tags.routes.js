@@ -29,6 +29,8 @@ router.use(authToken);
  *      post:
  *          summary: Create a new Tag associated to a project
  *          tags: [Tags]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: projectId
  *                in: path
@@ -66,6 +68,8 @@ router.post('/projects/:projectId/tags', validId('projectId'), validateBody(crea
  *      get:
  *          summary: Get all tags associated to one project
  *          tags: [Tags]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: projectId
  *                in: path
@@ -94,6 +98,8 @@ router.get('/projects/:projectId/tags', validId('projectId'), getTagWithAccess(A
  *      patch:
  *          summary: Update one tag
  *          tags: [Tags]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -129,6 +135,8 @@ router.patch('/tags/:id', validId(), getTagWithAccess(Access.MEMBERS_AND_PROJECT
  *      delete:
  *          summary: Delete one tag
  *          tags: [Tags]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path

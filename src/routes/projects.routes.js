@@ -28,6 +28,8 @@ router.use(authToken);
  *      post:
  *          summary: Create a new project
  *          tags: [Projects]
+ *          security:
+ *              - bearerAuth: []
  *          requestBody:
  *              required: true
  *              content:
@@ -70,6 +72,8 @@ router.post('/', authRoles([Role.ROLE_MANAGER]), validateBody(createProjectSchem
  *      get:
  *          summary: List the projects
  *          tags: [Projects]
+ *          security:
+ *              - bearerAuth: []
  *          responses:
  *              200:
  *                  description: Successfully get the list of projects
@@ -90,6 +94,8 @@ router.get('/', getProjects);
  *      get:
  *          summary: Get one project
  *          tags: [Projects]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -116,6 +122,8 @@ router.get('/:id', validId(), getProjectWithAccess(Access.MEMBERS_AND_MANAGERS, 
  *      patch:
  *          summary: Update one project
  *          tags: [Projects]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -157,6 +165,8 @@ router.patch('/:id', authRoles([Role.ROLE_MANAGER]), validId(), validateBody(upd
  *      delete:
  *          summary: Delete one project
  *          tags: [Projects]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -184,6 +194,8 @@ router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getProjectWithA
  *      post:
  *          summary: Add a member to a project
  *          tags: [Projects]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
@@ -222,6 +234,8 @@ router.post('/:id/members', authRoles([Role.ROLE_MANAGER]), validId(), getProjec
  *      delete:
  *          summary: Remove a member from the project
  *          tags: [Projects]
+ *          security:
+ *              - bearerAuth: []
  *          parameters:
  *              - name: id
  *                in: path
