@@ -20,7 +20,6 @@ const { tasks } = require("../fixtures/task.fixture");
 const { tags } = require("../fixtures/tag.fixture");
 // Enums
 const Access = require("../../src/enum/access.enum");
-const State = require("../../src/enum/state.enum");
 
 describe("Tag middleware and controller", () => {
   process.env.SKIP_CLEANUP = "true";
@@ -69,7 +68,7 @@ describe("Tag middleware and controller", () => {
    */
   it("should not allow a manager who is not project's owner to create a tag", async () => {
     req = {
-      project: project,
+      // project: project,
       params: { projectId: project._id.toString() },
       body: {
         name: tags[0].name,
@@ -88,7 +87,6 @@ describe("Tag middleware and controller", () => {
    */
   it("should allow the project's owner to create a tag", async () => {
     req = {
-      project: project,
       params: { projectId: project._id.toString() },
       body: {
         name: tags[0].name,
@@ -112,7 +110,6 @@ describe("Tag middleware and controller", () => {
    */
   it("should list tags by project", async () => {
     req = {
-      project: project,
       params: { projectId: project._id.toString() },
       user: member,
     };
@@ -133,7 +130,6 @@ describe("Tag middleware and controller", () => {
    */
   it("should allow a member to update his project's tag", async () => {
     req = {
-      project: project,
       body: { name: "Tag test" },
       params: { id: tag._id.toString() },
       user: member,
@@ -153,7 +149,6 @@ describe("Tag middleware and controller", () => {
    */
   it("should allow a member to delete his project's tag", async () => {
     req = {
-      project: project,
       params: { id: tag._id.toString() },
       user: member,
     };
