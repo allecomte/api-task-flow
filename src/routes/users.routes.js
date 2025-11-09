@@ -31,7 +31,6 @@ router.use(
     },
     standardHeaders: true, // inclut les headers RateLimit
     legacyHeaders: false,
-    keyGenerator: (req) => req.ip
   })
 );
 
