@@ -9,6 +9,7 @@ const tagRoutes = require('./routes/tags.routes');
 dotenv.config();
 
 const app = express();
+const setUpSwagger = require('./swagger'); 
 
 // Permet d'accéder au corps de la requête en JSON
 app.use(express.json());
@@ -34,5 +35,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api', tagRoutes);
 //#endregion
+
+setUpSwagger(app);
 
 module.exports = app;
