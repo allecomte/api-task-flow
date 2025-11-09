@@ -6,6 +6,34 @@ const {
   registerUserSchema,
   loginUserSchema,
 } = require("../schemas/user.schema");
+const rateLimit = require("express-rate-limit");
+
+router.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // 10 requêtes max par email
+    message: {
+      status: 429,
+      error: "Too many login attempts, please try again later.",
+    },
+    standardHeaders: true, // inclut les headers RateLimit
+    legacyHeaders: false,
+    keyGenerator: (req) => req.body.email
+  })
+);
+router.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // 20 requêtes max par IP
+    message: {
+      status: 429,
+      error: "Too many login attempts, please try again later.",
+    },
+    standardHeaders: true, // inclut les headers RateLimit
+    legacyHeaders: false,
+    keyGenerator: (req) => req.ip
+  })
+);
 
 /**
  * @swagger
