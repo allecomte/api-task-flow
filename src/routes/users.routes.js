@@ -10,8 +10,8 @@ const {
 /**
  * @swagger
  * tags:
- *   name: User
- *   description: Users' management
+ *   name: Users
+ *   description: User's management
  */
 
 /**
@@ -19,7 +19,7 @@ const {
  * /api/users/register:
  *      post:
  *          summary: Register a new user
- *          tags: [User]
+ *          tags: [Users]
  *          requestBody:
  *              required: true
  *              content:
@@ -44,7 +44,7 @@ const {
  *                                  type: array
  *                                  items:
  *                                      type: string
- *                                      description: user's roles
+ *                                      description: User's roles
  *          responses:
  *              201:
  *                  description: User successfully created
@@ -59,8 +59,8 @@ router.post("/register", validateBody(registerUserSchema), register);
  * @swagger
  * /api/users/login:
  *      post:
- *          summary: Login new user
- *          tags: [User]
+ *          summary: Login a user
+ *          tags: [Users]
  *          requestBody:
  *              required: true
  *              content:
