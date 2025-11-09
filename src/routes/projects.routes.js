@@ -230,6 +230,13 @@ router.post('/:id/members', authRoles([Role.ROLE_MANAGER]), validId(), getProjec
  *                schema:
  *                  type: string
  *                  format: string
+ *              - name: userId
+ *                in: path
+ *                required: true
+ *                description: User's Id to be removed as member from the project
+ *                schema:
+ *                  type: string
+ *                  format: string
  *          responses:
  *              200:
  *                  description: Member has been successfully removed from the project

@@ -126,6 +126,49 @@ const options = {
             },
           },
         },
+        Task: {
+          type: "object",
+          required: ["title", "description", "dueAt"],
+          properties: {
+            _id: { type: "string", description: "Task's Id" },
+            title: { type: "string", description: "Task's title" },
+            description: {
+              type: "string",
+              description: "Task's description",
+            },
+            dueAt: {
+              type: "string",
+              format: "date-time",
+              description: "Task due date",
+            },
+            priority: { type: "string", description: "Task's priority" },
+            state: { type: "string", description: "Task's state" },
+            project: { type: "string", description: "Project's Id associated to the task" },
+            assignee: { type: "string", description: "User's id assignee to the task" },
+            tags: { type: "array", items: {type: "string", description: "Tag's Id associated to the task"} },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "Task's creation date",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "Task's last update",
+            }
+          }
+        },
+        Tag: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            _id: { type: "string", description: "Task's Id" },
+            name: { type: "string", description: "Tag's name" },
+            project: { type: "string", description: "Project's Id associated to the tag" },
+            tasks: { type: "array", items: {type: "string", description: "Task's Id associated to the tag"} },
+
+          }
+        }
       },
     },
   },
