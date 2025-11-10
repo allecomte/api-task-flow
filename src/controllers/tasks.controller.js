@@ -67,13 +67,11 @@ exports.getTasks = async (req, res) => {
       filters = { assignee: req.user.id };
     }
     filters = { ...filters, ...req.filters };
-    console.log('filters', filters)
     const tasks = await Task.find(filters)
       .sort(req.sort)
       .skip(req.pagination.skip)
       .limit(req.pagination.limit);
     const paginatioInfo = await getPaginationInfo(Task, req.pagination);
-    console.log('data',tasks)
     res.status(200).json({data: tasks, pagination: paginatioInfo});
   } catch (error) {
     console.log("Error GET /tasks :", error);

@@ -68,8 +68,6 @@ describe("Project API", () => {
     const res = await request(app)
       .get("/api/projects")
       .set("Authorization", `Bearer ${token}`);
-      console.log(project._id.toString());
-      console.log(res.body);
     expect(res.statusCode).toEqual(200);
   });
 });
