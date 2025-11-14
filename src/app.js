@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const path = require("path");
 // Import Routes
 const userRoutes = require('./routes/users.routes');
 const projectRoutes = require('./routes/projects.routes');
@@ -9,6 +10,12 @@ const tagRoutes = require('./routes/tags.routes');
 dotenv.config();
 
 const app = express();
+
+app.use(
+  '/swagger-ui',
+  express.static(path.join(__dirname, '../node_modules/swagger-ui-dist'))
+);
+
 const setUpSwagger = require('./swagger'); 
 
 // Permet d'accéder au corps de la requête en JSON
