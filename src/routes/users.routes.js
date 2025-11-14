@@ -103,7 +103,7 @@ router.post("/register", validateBody(registerUserSchema), register);
  *                              password:
  *                                  type: string
  *          responses:
- *              201:
+ *              200:
  *                  description: User successfully logged
  *              400:
  *                  description: Credentials invalid
