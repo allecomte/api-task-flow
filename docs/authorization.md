@@ -19,8 +19,8 @@ Il sert de référence pour la logique de sécurité dans le back-end et la visi
 
 | Rôle | Description | Contexte possible | 
 |-----------------|--------------|--------------|
-| **Utilisateur** | Personne ayant uniquement le rôle ROLE_USER | propriétaire d'un projet |
-| **Manager** | Personne ayant le rôle ROLE_MANAGER | membre d'un projet, assigné à une tâche |
+| **Utilisateur** | Personne ayant uniquement le rôle ROLE_USER | membre d'un projet, assigné à une tâche |
+| **Manager** | Personne ayant le rôle ROLE_MANAGER | propriétaire d'un projet |
 
 ---
 
