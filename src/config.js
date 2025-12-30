@@ -3,12 +3,16 @@ const { default: mongoose } = require('mongoose');
 const connectDB = async () => {
     try {
             await mongoose.connect('mongodb+srv://'+process.env.DB_USER+':'+process.env.DB_PASSWORD+'@cluster0.bjlx6z4.mongodb.net/'+process.env.DB_NAME+'?retryWrites=true&w=majority&appName=Cluster0',
-                { useNewUrlParser: true,
-                useUnifiedTopology: true }
+                { 
+                  serverSelectionTimeoutMS: 5000
+                  // useNewUrlParser: true,
+                // useUnifiedTopology: true
+               }
             )
             console.log('MongoDB connected');
     } catch (error) {
         console.error('Database connection error:', error);
+        process.exit(1);
     }
 }
 
