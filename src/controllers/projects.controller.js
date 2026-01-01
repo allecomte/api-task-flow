@@ -7,7 +7,11 @@ const Task = require("../models/task.model");
 // Enums
 const Role = require("../enum/role.enum");
 // Services
-const { addOneProjectToUserMembership, addOneProjectToUserOwnership, removeOneProjectFromUserMembership } = require("../services/user.service");
+const {
+  addOneProjectToUserMembership,
+  addOneProjectToUserOwnership,
+  removeOneProjectFromUserMembership,
+} = require("../services/user.service");
 
 exports.createProject = async (req, res) => {
   try {
@@ -47,10 +51,17 @@ exports.getProjects = async (req, res) => {
     }
     const projects = await Project.find(
       filter,
-      "title description startAt endAt"
-    ).sort({
-      createdAt: -1,
-    });
+      "title description startAt endAt tasks"
+    )
+      .populate({
+        path: "my_tasks",
+        match: { assignee: req.user.id },
+        select: "_id state",
+        options: { strictPopulate: false },
+      })
+      .sort({
+        createdAt: -1,
+      });
     res.status(200).json(projects);
   } catch (error) {
     console.log("Error GET /projects :", error);
@@ -77,7 +88,7 @@ exports.updateProject = async (req, res, next) => {
       ...(title && { title }),
       ...(description && { description }),
       ...(startAt && { startAt }),
-      ...(endAt && { endAt })
+      ...(endAt && { endAt }),
     });
     res.status(200).json(await project.save());
   } catch (error) {
@@ -93,7 +104,9 @@ exports.deleteProject = async (req, res, next) => {
     // Don't delete project if it has tasks
     const tasksCount = await Task.countDocuments({ project: project._id });
     if (tasksCount > 0) {
-      return res .status(400).json({ error: "Cannot delete project with existing tasks" });
+      return res
+        .status(400)
+        .json({ error: "Cannot delete project with existing tasks" });
     }
     const ownerId = project.owner;
     const memberIds = project.members;
@@ -158,10 +171,16 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
       assignee: userId,
     });
     if (assignedTasksCount > 0) {
-      return res.status(400).json({ error: "Cannot remove member assigned to tasks in the project" });
+      return res
+        .status(400)
+        .json({
+          error: "Cannot remove member assigned to tasks in the project",
+        });
     }
     await removeOneProjectFromUserMembership(userId, project._id);
-    project.members = project.members.filter((member) => member.toString() !== userId);
+    project.members = project.members.filter(
+      (member) => member.toString() !== userId
+    );
     res.status(200).json(await project.save());
   } catch (error) {
     console.log(`Error DELETE /projects/${id}/members/${userId} :`, error);
