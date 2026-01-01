@@ -83,22 +83,20 @@ exports.getTasks = async (req, res) => {
     delete filters.notClosed;
     const hasPagination = filters.pagination;
     delete filters.pagination;
+
+    let taskQuery = Task.find(filters).sort(req.sort);
     if (hasPagination) {
-      const tasks = await Task.find(filters)
-        .sort(req.sort)
+      taskQuery = taskQuery
         .skip(req.pagination.skip)
         .limit(req.pagination.limit);
-      const paginatioInfo = await getPaginationInfo(Task, req.pagination, filters);
-      res.status(200).json({ data: tasks, pagination: paginatioInfo });
-    } else {
-      const tasks = await Task.find(filters).sort(req.sort);
-      const paginatioInfo = await getPaginationInfo(Task, {
-        page: 1,
-        limit: tasks.length,
-      },
-      filters);
-      res.status(200).json({ data: tasks, pagination: paginatioInfo });
     }
+    const tasks = await taskQuery;
+    const paginatioInfo = await getPaginationInfo(
+      Task,
+      hasPagination ? req.pagination : { page: 1, limit: tasks.length },
+      filters
+    );
+    res.status(200).json({ data: tasks, pagination: paginatioInfo });
   } catch (error) {
     console.log("Error GET /tasks :", error);
     return res.status(500).json({ error });

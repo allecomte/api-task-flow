@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
+const { getPaginationInfo } = require("../utils/pagination.utils");
 // Models
 const Project = require("../models/project.model");
 const User = require("../models/user.model");
@@ -50,20 +51,35 @@ exports.getProjects = async (req, res) => {
       filters = { members: req.user.id };
     }
     filters = { ...filters, ...req.filters };
-    const projects = await Project.find(
-      filters,
-      "title description startAt endAt tasks"
-    )
+    const hasPagination = filters.pagination;
+    delete filters.pagination;
+
+    let projectQuery = Project.find(
+        filters,
+        "title description startAt endAt tasks"
+      )
+      .sort(req.sort)
       .populate({
         path: "my_tasks",
         match: { assignee: req.user.id },
         select: "_id state",
         options: { strictPopulate: false },
-      })
-      .sort({
-        createdAt: -1,
       });
-    res.status(200).json(projects);
+
+      if (hasPagination) {
+        projectQuery = projectQuery
+        .skip(req.pagination.skip)
+        .limit(req.pagination.limit);
+      }
+
+      const projects = await projectQuery;
+      const paginatioInfo = await getPaginationInfo(
+        Project,
+        hasPagination ? req.pagination : { page: 1, limit: projects.length },
+        filters
+      );
+
+      res.status(200).json({ data: projects, pagination: paginatioInfo });
   } catch (error) {
     console.log("Error GET /projects :", error);
     return res.status(500).json({ error });
@@ -172,11 +188,9 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
       assignee: userId,
     });
     if (assignedTasksCount > 0) {
-      return res
-        .status(400)
-        .json({
-          error: "Cannot remove member assigned to tasks in the project",
-        });
+      return res.status(400).json({
+        error: "Cannot remove member assigned to tasks in the project",
+      });
     }
     await removeOneProjectFromUserMembership(userId, project._id);
     project.members = project.members.filter(

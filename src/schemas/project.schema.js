@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const {checkIdFormat} = require('../middleware/validation');
+const paginationSchema = require('./pagination.schema');
 
 const createProjectSchema = Joi.object({
     title: Joi.string().required(),
@@ -20,7 +21,8 @@ const addMemberToProjectSchema = Joi.object({
     member: Joi.string().length(24).hex().required()
 });
 
-const projectQueryFilterSchema = Joi.object({
+const projectQueryFilterSchema = paginationSchema.keys({
+      sort: Joi.string().valid("startAt", "-startAt", "endtAt", "-endtAt", "createdAt", "-createdAt").optional().default("-createdAt"),
     isArchived: Joi.boolean().optional()
 });
 
