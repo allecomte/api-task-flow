@@ -44,6 +44,7 @@ const taskQueryFilterSchema = paginationSchema.keys({
   tag: checkIdFormat.optional(),
   assignee: checkIdFormat.optional(),
   sort: Joi.string().valid("dueAt", "-dueAt", "priority", "-priority").optional().default("-priority"),
+  notClosed: Joi.bool().optional().default(true),
 });
 
 module.exports = { createTaskSchema, updateTaskSchema, taskQueryFilterSchema };

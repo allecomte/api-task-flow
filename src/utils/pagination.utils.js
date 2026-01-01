@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-async function getPaginationInfo(model, pagination) {
-  const total = await model.countDocuments();
+async function getPaginationInfo(model, pagination, filters = {}) {
+  const total = await model.countDocuments(filters);
   const totalPages = Math.ceil(total / pagination.limit);
   return {
     total,

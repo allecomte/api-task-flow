@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {getProjects, getProjectById, createProject, updateProject, deleteProject, addOneMemberToOneProject, deleteOneMemberFromOneProject} = require('../controllers/projects.controller');
-const {createProjectSchema, updateProjectSchema, addMemberToProjectSchema} = require('../schemas/project.schema');
+const {createProjectSchema, updateProjectSchema, addMemberToProjectSchema, projectQueryFilterSchema} = require('../schemas/project.schema');
 // Enums
 const Role = require('../enum/role.enum');
 const Access = require('../enum/access.enum');
@@ -9,7 +9,7 @@ const Access = require('../enum/access.enum');
 const Project = require('../models/project.model');
 // Middlewares
 const {authToken,authRoles} = require('../middleware/auth');
-const {validateBody, validId} = require('../middleware/validation');
+const {validateBody, validId, validateQuery} = require('../middleware/validation');
 const {createAccessMiddleware} = require('../middleware/access');
 const { getProjectWithAccess } = createAccessMiddleware({ Project });
 
@@ -86,7 +86,7 @@ router.post('/', authRoles([Role.ROLE_MANAGER]), validateBody(createProjectSchem
  *              400:
  *                  description: Fail to list the projects
  */
-router.get('/', getProjects);
+router.get('/', validateQuery(projectQueryFilterSchema), getProjects);
 
 /**
  * @swagger

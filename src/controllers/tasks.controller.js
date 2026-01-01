@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const { allExistByIds, existsById } = require("../utils/dbCheck.utils");
-const {getPaginationInfo} = require("../utils/pagination.utils");
+const { getPaginationInfo } = require("../utils/pagination.utils");
 // Models
 const Project = require("../models/project.model");
 const Task = require("../models/task.model");
@@ -9,7 +9,11 @@ const Tag = require("../models/tag.model");
 // Enums
 const Role = require("../enum/role.enum");
 // Services
-const { addOneTaskToUser, removeOneTaskFromUser } = require("../services/user.service");
+const {
+  addOneTaskToUser,
+  removeOneTaskFromUser,
+} = require("../services/user.service");
+const State = require("../enum/state.enum");
 
 exports.createTask = async (req, res) => {
   try {
@@ -28,7 +32,10 @@ exports.createTask = async (req, res) => {
     if (!assigneeExists) {
       return res.status(400).json({ error: "Assignee does not exist" });
     }
-    if (assignee !== undefined && !projectAssociated.members.map(String).includes(assignee)) {
+    if (
+      assignee !== undefined &&
+      !projectAssociated.members.map(String).includes(assignee)
+    ) {
       return res
         .status(400)
         .json({ error: "Assignee is not a member of the task's project" });
@@ -39,7 +46,10 @@ exports.createTask = async (req, res) => {
         .status(400)
         .json({ error: "One or several tags do not exist" });
     }
-    if (projectAssociated.startAt > dueAt || (projectAssociated.endAt !== null && projectAssociated.endAt < dueAt)) {
+    if (
+      projectAssociated.startAt > dueAt ||
+      (projectAssociated.endAt !== null && projectAssociated.endAt < dueAt)
+    ) {
       return res.status(400).json({
         error: "Task due date must be within the project's start and end dates",
       });
@@ -49,7 +59,7 @@ exports.createTask = async (req, res) => {
     });
     const taskCreated = await task.save();
     projectAssociated.tasks.push(taskCreated._id);
-    if(assignee) {
+    if (assignee) {
       await addOneTaskToUser(assignee, taskCreated._id);
     }
     await projectAssociated.save();
@@ -67,12 +77,28 @@ exports.getTasks = async (req, res) => {
       filters = { assignee: req.user.id };
     }
     filters = { ...filters, ...req.filters };
-    const tasks = await Task.find(filters)
-      .sort(req.sort)
-      .skip(req.pagination.skip)
-      .limit(req.pagination.limit);
-    const paginatioInfo = await getPaginationInfo(Task, req.pagination);
-    res.status(200).json({data: tasks, pagination: paginatioInfo});
+    if (filters.notClosed) {
+      filters.state = { $ne: State.CLOSED };
+    }
+    delete filters.notClosed;
+    const hasPagination = filters.pagination;
+    delete filters.pagination;
+    if (hasPagination) {
+      const tasks = await Task.find(filters)
+        .sort(req.sort)
+        .skip(req.pagination.skip)
+        .limit(req.pagination.limit);
+      const paginatioInfo = await getPaginationInfo(Task, req.pagination, filters);
+      res.status(200).json({ data: tasks, pagination: paginatioInfo });
+    } else {
+      const tasks = await Task.find(filters).sort(req.sort);
+      const paginatioInfo = await getPaginationInfo(Task, {
+        page: 1,
+        limit: tasks.length,
+      },
+      filters);
+      res.status(200).json({ data: tasks, pagination: paginatioInfo });
+    }
   } catch (error) {
     console.log("Error GET /tasks :", error);
     return res.status(500).json({ error });
@@ -104,12 +130,10 @@ exports.updateTask = async (req, res) => {
         tags !== undefined ||
         priority !== undefined)
     ) {
-      return res
-        .status(403)
-        .json({
-          error:
-            "Only project owner can update these fields: title, description, due date, assignee, tags, priority",
-        });
+      return res.status(403).json({
+        error:
+          "Only project owner can update these fields: title, description, due date, assignee, tags, priority",
+      });
     }
     if (assignee !== undefined) {
       const assigneeExists = assignee ? await existsById(User, assignee) : true;
@@ -121,12 +145,12 @@ exports.updateTask = async (req, res) => {
           .status(400)
           .json({ error: "Assignee is not a member of the task's project" });
       }
-      if(task.assignee && task.assignee.toString() !== assignee){
+      if (task.assignee && task.assignee.toString() !== assignee) {
         // Remove task from previous assignee
         removeOneTaskFromUser(task.assignee, id);
         // Add task to new assignee
         addOneTaskToUser(assignee, id);
-      }else if (!task.assignee){
+      } else if (!task.assignee) {
         // Add task to new assignee
         addOneTaskToUser(assignee, id);
       }
@@ -141,7 +165,8 @@ exports.updateTask = async (req, res) => {
     }
     if (
       dueAt !== undefined &&
-      (req.project.startAt > dueAt || (req.project.endAt !== null && req.project.endAt < dueAt))
+      (req.project.startAt > dueAt ||
+        (req.project.endAt !== null && req.project.endAt < dueAt))
     ) {
       return res.status(400).json({
         error: "Task due date must be within the project's start and end dates",
@@ -197,13 +222,11 @@ exports.associateOrDissociateTagToTask = async (req, res) => {
       await Task.findByIdAndUpdate(id, { $addToSet: { tags: tagId } });
       await Tag.findByIdAndUpdate(tag._id, { $addToSet: { tasks: id } });
     }
-    return res
-      .status(200)
-      .json({
-        message: tagAlreadyAssociated
-          ? "Tag dissociated from task successfully"
-          : "Tag associated to task successfully",
-      });
+    return res.status(200).json({
+      message: tagAlreadyAssociated
+        ? "Tag dissociated from task successfully"
+        : "Tag associated to task successfully",
+    });
   } catch (error) {
     console.log(`Error POST /tasks/${id}/tags/${tagId} :`, error);
     return res.status(500).json({ error });

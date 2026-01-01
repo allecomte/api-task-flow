@@ -45,12 +45,13 @@ exports.createProject = async (req, res) => {
 
 exports.getProjects = async (req, res) => {
   try {
-    let filter = {};
+    let filters = {};
     if (req.user.roles.includes(Role.ROLE_USER)) {
-      filter = { members: req.user.id };
+      filters = { members: req.user.id };
     }
+    filters = { ...filters, ...req.filters };
     const projects = await Project.find(
-      filter,
+      filters,
       "title description startAt endAt tasks"
     )
       .populate({
