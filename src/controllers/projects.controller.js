@@ -60,7 +60,7 @@ exports.getProjects = async (req, res) => {
       )
       .sort(req.sort)
       .populate({
-        path: "my_tasks",
+        path: "myTasks",
         match: { assignee: req.user.id },
         select: "_id state",
         options: { strictPopulate: false },

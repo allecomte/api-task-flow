@@ -23,7 +23,7 @@ const projectSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-projectSchema.virtual("my_tasks", {
+projectSchema.virtual("myTasks", {
   ref: "Task",
   localField: "_id",
   foreignField: "project",
