@@ -7,7 +7,7 @@ function canAccessProject(user, project, strategy) {
   const isOwner = (project.owner ? project.owner.toString() : "") === user.id;
   let hasAccess = false;
   switch (strategy) {
-    case Access.MEMBERS_AND_PROJECT_OWNER:
+    case Access.MEMBERS_AND_MANAGERS:
       hasAccess = isManager || isMember;
       break;
     case Access.ALL_MANAGERS:
