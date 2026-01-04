@@ -114,7 +114,7 @@ router.get('/', validateQuery(projectQueryFilterSchema), getProjects);
  *              400:
  *                  description: Fail to get the project
  */
-router.get('/:id', validId(), getProjectWithAccess(Access.MEMBERS_AND_MANAGERS, "title description startAt endAt members"), getProjectById);
+router.get('/:id', validId(), getProjectWithAccess(Access.MEMBERS_AND_MANAGERS), getProjectById);
 
 /**
  * @swagger

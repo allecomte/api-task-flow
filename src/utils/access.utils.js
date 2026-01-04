@@ -3,7 +3,9 @@ const Access = require("../enum/access.enum");
 
 function canAccessProject(user, project, strategy) {
   const isManager = user.roles.includes(Role.ROLE_MANAGER);
-  const isMember = project.members.map(String).includes(user.id);
+  const isMember = project.members
+  .map(member => member._id ? member._id.toString() : member.toString())
+  .includes(user.id.toString());
   const isOwner = (project.owner ? project.owner.toString() : "") === user.id;
   let hasAccess = false;
   switch (strategy) {

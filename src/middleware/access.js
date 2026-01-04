@@ -7,13 +7,21 @@ const {
   canAccessTask,
   canAccessTag,
 } = require("../utils/access.utils");
+const { query } = require("express-validator");
 
 function createAccessMiddleware({Project, Task, Tag}){
   const getProjectWithAccess = (strategy, fields = null) => {
   return async (req, res, next) => {
     const { id } = req.params;
     try {
-      const project = await Project.findById(id, fields);
+      let query = Project.findById(id, fields);
+      if(fields === null){
+        query = query.populate('members', 'firstname lastname email')
+        .populate('owner', 'firstname lastname email')
+        .populate('tasks', 'title state priority dueAt')
+        .populate('tags', 'name');
+      }
+      const project = await query;
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
       }
@@ -21,6 +29,7 @@ function createAccessMiddleware({Project, Task, Tag}){
       req.project = project;
       next();
     } catch (error) {
+      console.log(error);
       if (error.message === "Not authorized")
         return res.status(403).json({ message: error.message });
       return res.status(500).json({ error });
