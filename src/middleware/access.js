@@ -18,7 +18,7 @@ function createAccessMiddleware({Project, Task, Tag}){
       if(fields === null){
         query = query.populate('members', 'firstname lastname email')
         .populate('owner', 'firstname lastname email')
-        .populate('tasks', 'title state priority dueAt')
+        .populate('tasks', 'title state priority dueAt assignee')
         .populate('tags', 'name');
       }
       const project = await query;
