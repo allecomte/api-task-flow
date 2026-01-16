@@ -80,3 +80,12 @@ exports.getProfile = async (req, res) => {
         return res.status(500).json({ error });
     }
 }
+
+exports.getUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.status(200).json(users);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+} 

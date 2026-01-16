@@ -4,6 +4,7 @@ const {
   register,
   login,
   getProfile,
+  getUsers
 } = require("../controllers/users.controller");
 const { authToken } = require("../middleware/auth");
 const { validateBody } = require("../middleware/validation");
@@ -143,5 +144,27 @@ router.post(
  *                  description: Unauthorized
  */
 router.get("/profile", authToken, getProfile);
+
+/**
+ * @swagger
+ * /api/users:
+ *      get:
+ *          summary: List the users
+ *          tags: [Users]
+ *          security:
+ *              - bearerAuth: []
+ *          responses:
+ *              200:
+ *                  description: Successfully get the list of users
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: array
+ *                              items:
+ *                                  $ref: '#/components/schemas/User'
+ *              400:
+ *                  description: Fail to list the users
+ */
+router.get('/', authToken, getUsers);
 
 module.exports = router;
