@@ -177,7 +177,8 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
         .status(400)
         .json({ error: "User to be deleted in members does not exist" });
     }
-    if (!project.members.map(String).includes(userId)) {
+    const memberIds = project.members.map(member => String(member._id));
+    if (!memberIds.map(String).includes(userId)) {
       return res
         .status(400)
         .json({ error: "User is not a member of the project" });

@@ -226,7 +226,7 @@ router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getProjectWithA
  *              400:
  *                  description: Fail to add member to the project
  */
-router.post('/:id/members', authRoles([Role.ROLE_MANAGER]), validId(), getProjectWithAccess(Access.ALL_MANAGERS), addOneMemberToOneProject);
+router.post('/:id/members', authRoles([Role.ROLE_MANAGER]), validId(), validateBody(addMemberToProjectSchema), getProjectWithAccess(Access.ALL_MANAGERS), addOneMemberToOneProject);
 
 /**
  * @swagger
@@ -262,7 +262,7 @@ router.post('/:id/members', authRoles([Role.ROLE_MANAGER]), validId(), getProjec
  *              400:
  *                  description: Fail to remove the member from the project
  */
-router.delete('/:id/members/:userId', authRoles([Role.ROLE_MANAGER]), validId('id','userId'), validateBody(addMemberToProjectSchema), getProjectWithAccess(Access.ALL_MANAGERS), deleteOneMemberFromOneProject);
+router.delete('/:id/members/:userId', authRoles([Role.ROLE_MANAGER]), validId('id','userId'), getProjectWithAccess(Access.ALL_MANAGERS), deleteOneMemberFromOneProject);
 
 
 
