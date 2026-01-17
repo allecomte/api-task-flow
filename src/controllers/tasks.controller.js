@@ -84,7 +84,7 @@ exports.getTasks = async (req, res) => {
     const hasPagination = filters.pagination;
     delete filters.pagination;
 
-    let taskQuery = Task.find(filters).sort(req.sort);
+    let taskQuery = Task.find(filters).sort(req.sort).populate("assignee","firstname lastname email");
     if (hasPagination) {
       taskQuery = taskQuery
         .skip(req.pagination.skip)
