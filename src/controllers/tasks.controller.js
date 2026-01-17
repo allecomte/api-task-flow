@@ -63,7 +63,14 @@ exports.createTask = async (req, res) => {
       await addOneTaskToUser(assignee, taskCreated._id);
     }
     await projectAssociated.save();
-    res.status(201).json(taskCreated);
+
+    const taskPopulated = await Task.findById(taskCreated._id)
+      .populate('project', 'title description startAt endAt') 
+      .populate('assignee', 'firstname lastname email');
+
+    res.status(201).json(taskPopulated);
+
+    // res.status(201).json(taskCreated);
   } catch (error) {
     console.log("Error POST /tasks :", error);
     return res.status(500).json({ error });
