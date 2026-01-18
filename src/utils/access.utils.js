@@ -4,9 +4,14 @@ const Access = require("../enum/access.enum");
 function canAccessProject(user, project, strategy) {
   const isManager = user.roles.includes(Role.ROLE_MANAGER);
   const isMember = project.members
-  .map(member => member._id ? member._id.toString() : member.toString())
-  .includes(user.id.toString());
-  const isOwner = (project.owner ? (project.owner._id ? project.owner._id.toString() :  project.owner.toString()) : "") === user.id;
+    .map((member) => (member._id ? member._id.toString() : member.toString()))
+    .includes(user.id.toString());
+  const isOwner =
+    (project.owner
+      ? project.owner._id
+        ? project.owner._id.toString()
+        : project.owner.toString()
+      : "") === user.id;
   let hasAccess = false;
   switch (strategy) {
     case Access.MEMBERS_AND_MANAGERS:
@@ -27,10 +32,20 @@ function canAccessProject(user, project, strategy) {
 }
 
 function canAccessTask(user, task, project, strategy) {
-  const isProjectOwner = (project.owner ? (project.owner._id ? project.owner._id.toString() :  project.owner.toString()) : "") === user.id;
+  const isProjectOwner =
+    (project.owner
+      ? project.owner._id
+        ? project.owner._id.toString()
+        : project.owner.toString()
+      : "") === user.id;
   const isManager = user.roles.includes(Role.ROLE_MANAGER);
   const isAssignee =
-    (task.assignee ? task.assignee.toString() : "") === user.id;
+    (task.assignee
+      ? task.assignee._id
+        ? task.assignee._id.toString()
+        : task.assignee.toString()
+      : "") === user.id;
+  // const isAssignee = (task.assignee ? task.assignee.toString() : "") === user.id;
   let hasAccess = false;
   switch (strategy) {
     case Access.ONLY_PROJECT_OWNER:
@@ -51,7 +66,12 @@ function canAccessTask(user, task, project, strategy) {
 }
 
 function canAccessTag(user, project, strategy) {
-  const isProjectOwner = (project.owner ? (project.owner._id ? project.owner._id.toString() :  project.owner.toString()) : "") === user.id;
+  const isProjectOwner =
+    (project.owner
+      ? project.owner._id
+        ? project.owner._id.toString()
+        : project.owner.toString()
+      : "") === user.id;
   const isMember = project.members.map(String).includes(user.id);
   let hasAccess = false;
   switch (strategy) {
