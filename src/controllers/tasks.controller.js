@@ -223,7 +223,7 @@ exports.associateOrDissociateTagToTask = async (req, res) => {
     if (!tag) {
       return res.status(404).json({ message: "Tag not found" });
     }
-    const tagAlreadyAssociated = task.tags.map(String).includes(tagId);
+    const tagAlreadyAssociated = task.tags.some(tag => tag.id === tagId);
     if (tagAlreadyAssociated) {
       // Dissociate tag
       await Task.findByIdAndUpdate(id, { $pull: { tags: tagId } });
