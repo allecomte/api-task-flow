@@ -65,8 +65,8 @@ exports.createTask = async (req, res) => {
     await projectAssociated.save();
 
     const taskPopulated = await Task.findById(taskCreated._id)
-      .populate('project', 'title description startAt endAt') 
-      .populate('assignee', 'firstname lastname email');
+      .populate("project", "title description startAt endAt")
+      .populate("assignee", "firstname lastname email");
 
     res.status(201).json(taskPopulated);
 
@@ -91,7 +91,9 @@ exports.getTasks = async (req, res) => {
     const hasPagination = filters.pagination;
     delete filters.pagination;
 
-    let taskQuery = Task.find(filters).sort(req.sort).populate("assignee","firstname lastname email");
+    let taskQuery = Task.find(filters)
+      .sort(req.sort)
+      .populate("assignee", "firstname lastname email");
     if (hasPagination) {
       taskQuery = taskQuery
         .skip(req.pagination.skip)
@@ -101,7 +103,7 @@ exports.getTasks = async (req, res) => {
     const paginatioInfo = await getPaginationInfo(
       Task,
       hasPagination ? req.pagination : { page: 1, limit: tasks.length },
-      filters
+      filters,
     );
     res.status(200).json({ data: tasks, pagination: paginatioInfo });
   } catch (error) {
@@ -186,7 +188,11 @@ exports.updateTask = async (req, res) => {
       ...(priority && { priority }),
       ...(state && { state }),
     });
-    res.status(200).json(await task.save());
+    const updatedTask = await task.save();
+
+    await updatedTask.populate({ path: "assignee", select: "firstname lastname email" });
+
+    res.status(200).json(updatedTask);
   } catch (error) {
     console.log(`Error PATCH /tasks/${id} :`, error);
     return res.status(500).json({ error });
