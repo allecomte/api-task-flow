@@ -51,7 +51,8 @@ function createAccessMiddleware({ Project, Task, Tag }) {
       try {
         const task = await Task.findById(id, fields)
         .populate("project", "title description startAt")
-        .populate("assignee", "firstname lastname email");
+        .populate("assignee", "firstname lastname email")
+        .populate("tags", "name");
         if (!task) {
           return res.status(404).json({ message: "Task not found" });
         }
