@@ -56,7 +56,7 @@ exports.getProjects = async (req, res) => {
 
     let projectQuery = Project.find(
         filters,
-        "title description startAt endAt tasks"
+        "title description startAt endAt tasks members"
       )
       .sort(req.sort)
       .populate({
