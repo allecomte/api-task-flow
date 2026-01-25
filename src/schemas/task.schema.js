@@ -2,7 +2,7 @@ const Joi = require("joi");
 const { checkIdFormat } = require("../middleware/validation");
 const Priority = require("../enum/priority.enum");
 const State = require("../enum/state.enum");
-const paginationSchema = require('./pagination.schema');
+const paginationSchema = require("./pagination.schema");
 
 const createTaskSchema = Joi.object({
   title: Joi.string().required(),
@@ -40,10 +40,17 @@ const taskQueryFilterSchema = paginationSchema.keys({
   priority: Joi.string()
     .valid(...Object.values(Priority))
     .optional(),
-  dueAt: Joi.date().optional(),
+  dueAt: Joi.object({
+    gte: Joi.date().optional(),
+    lte: Joi.date().optional(),
+  }).optional(),
+  // dueAt: Joi.date().optional(),
   tag: checkIdFormat.optional(),
   assignee: checkIdFormat.optional(),
-  sort: Joi.string().valid("dueAt", "-dueAt", "priority", "-priority").optional().default("-priority"),
+  sort: Joi.string()
+    .valid("dueAt", "-dueAt", "priority", "-priority")
+    .optional()
+    .default("-priority"),
   notClosed: Joi.bool().optional().default(true),
 });
 

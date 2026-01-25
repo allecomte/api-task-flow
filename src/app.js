@@ -22,6 +22,9 @@ const setUpSwagger = require('./swagger');
 // Permet d'accéder au corps de la requête en JSON
 app.use(express.json());
 
+app.set('query parser', 'extended');
+
+
 // Middleware CORS pour autoriser les requêtes cross-origin
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
