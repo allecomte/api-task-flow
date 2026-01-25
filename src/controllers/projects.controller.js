@@ -152,7 +152,8 @@ exports.addOneMemberToOneProject = async (req, res, next) => {
         .status(400)
         .json({ error: "User to be added in members does not exist" });
     }
-    if (!project.members.map(String).includes(member)) {
+    const memberIds = project.members.map(m => String(m._id));
+    if (!memberIds.includes(member)) {
       project.members.push(member);
     } else {
       return res
@@ -195,7 +196,7 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
     }
     await removeOneProjectFromUserMembership(userId, project._id);
     project.members = project.members.filter(
-      (member) => member.toString() !== userId
+      (member) => (member._id ? member._id.toString() : member.toString()) !== userId
     );
     res.status(200).json(await project.save());
   } catch (error) {

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {createTag, getTagsByProject: getTagsByProject, updateTag, deleteTag} = require('../controllers/tags.controller');
+const {createTag, getTagsByProject: getTagsByProject, getTags, updateTag, deleteTag} = require('../controllers/tags.controller');
 const {createOrUpdateTagSchema} = require('../schemas/tag.schema');
 // Models
 const Project = require('../models/project.model');
@@ -91,6 +91,28 @@ router.post('/projects/:projectId/tags', validId('projectId'), validateBody(crea
  *                  description: Fail to get the project's tags
  */
 router.get('/projects/:projectId/tags', validId('projectId'), getTagWithAccess(Access.MEMBERS_AND_PROJECT_OWNER), getTagsByProject);
+
+/**
+ * @swagger
+ * /api/tags:
+ *      get:
+ *          summary: Get all tags available to the user
+ *          tags: [Tags]
+ *          security:
+ *              - bearerAuth: []
+ *          responses:
+ *              200:
+ *                  description: Successfully get the project's tags
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: array
+ *                              items:
+ *                                  $ref: '#/components/schemas/Tag'
+ *              400:
+ *                  description: Fail to get the tags
+ */
+router.get('/tags', getTags);
 
 /**
  * @swagger

@@ -2,6 +2,9 @@ const { default: mongoose } = require("mongoose");
 // Models
 const Task = require("../models/task.model");
 const Tag = require("../models/tag.model");
+const Project = require("../models/project.model");
+// Enums
+const Role = require("../enum/role.enum");
 
 exports.createTag = async (req, res) => {
   const project = req.project;
@@ -30,6 +33,27 @@ exports.getTagsByProject = async (req, res) => {
     res.status(200).json(tags);
   } catch (error) {
     console.log(`Error GET /projects/${project.id}/tags :`, error);
+    return res.status(500).json({ error });
+  }
+};
+
+exports.getTags = async (req, res) => {
+  try{
+    if (req.user.roles.includes(Role.ROLE_MANAGER)) {
+        const tags = await Tag.find({}).sort({
+          createdAt: -1,
+      }).select("name");
+      res.status(200).json(tags);
+    }else{
+      const projects = await Project.find({ members: req.user.id }).select('_id');
+      const projectIds = projects.map(project => project._id);
+      const tags = await Tag.find({ project: { $in: projectIds } }).sort({
+        createdAt: -1,
+      }).select("name");
+      res.status(200).json(tags);
+    }
+  } catch (error) {
+    console.log(`Error GET /tags :`, error);
     return res.status(500).json({ error });
   }
 };
