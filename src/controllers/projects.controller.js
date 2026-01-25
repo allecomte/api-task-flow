@@ -73,13 +73,13 @@ exports.getProjects = async (req, res) => {
       }
 
       const projects = await projectQuery;
-      const paginatioInfo = await getPaginationInfo(
+      const paginationInfo = await getPaginationInfo(
         Project,
         hasPagination ? req.pagination : { page: 1, limit: projects.length },
         filters
       );
 
-      res.status(200).json({ data: projects, pagination: paginatioInfo });
+      res.status(200).json({ data: projects, pagination: paginationInfo });
   } catch (error) {
     console.log("Error GET /projects :", error);
     return res.status(500).json({ error });
