@@ -84,13 +84,12 @@ exports.getTasks = async (req, res) => {
       filters = { assignee: req.user.id };
     }
     filters = { ...filters, ...req.filters };
-    if (filters.notClosed) {
+    if (filters.notClosed && filters.state === undefined) {
       filters.state = { $ne: State.CLOSED };
     }
     delete filters.notClosed;
     const hasPagination = filters.pagination;
     delete filters.pagination;
-
     let taskQuery = Task.find(filters)
       .sort(req.sort)
       .populate("assignee", "firstname lastname email");
