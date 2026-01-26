@@ -48,9 +48,9 @@ const taskQueryFilterSchema = paginationSchema.keys({
   tag: checkIdFormat.optional(),
   assignee: checkIdFormat.optional(),
   sort: Joi.string()
-    .valid("dueAt", "-dueAt", "priority", "-priority")
+    .valid("dueAt", "-dueAt", "createdAt", "-createdAt", "priority", "-priority")
     .optional()
-    .default("-priority"),
+    .default("-dueAt"),
   notClosed: Joi.bool().optional().default(true),
 });
 
