@@ -87,7 +87,12 @@ exports.getTasks = async (req, res) => {
     if (filters.notClosed && filters.state === undefined) {
       filters.state = { $ne: State.CLOSED };
     }
+    if (filters.onlyMine !== undefined && filters.onlyMine && filters.assignee === undefined) {
+      filters.assignee = req.user.id;
+    }
+
     delete filters.notClosed;
+    delete filters.onlyMine;
     const hasPagination = filters.pagination;
     delete filters.pagination;
     let taskQuery = Task.find(filters)

@@ -52,6 +52,7 @@ const taskQueryFilterSchema = paginationSchema.keys({
     .optional()
     .default("-dueAt"),
   notClosed: Joi.bool().optional().default(true),
+  onlyMine: Joi.bool().optional(),
 });
 
 module.exports = { createTaskSchema, updateTaskSchema, taskQueryFilterSchema };
