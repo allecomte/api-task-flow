@@ -4,13 +4,17 @@ const {
   register,
   login,
   getProfile,
-  getUsers
+  getUsers,
+  updateProfile,
+  updatePassword
 } = require("../controllers/users.controller");
 const { authToken } = require("../middleware/auth");
-const { validateBody } = require("../middleware/validation");
+const { validateBody, validId } = require("../middleware/validation");
 const {
   registerUserSchema,
   loginUserSchema,
+  updateProfileSchema,
+  updatePasswordSchema
 } = require("../schemas/user.schema");
 const rateLimit = require("express-rate-limit");
 
@@ -144,6 +148,70 @@ router.post(
  *                  description: Unauthorized
  */
 router.get("/profile", authToken, getProfile);
+
+/**
+ * @swagger
+ * /api/users/profile:
+ *      patch:
+ *          summary: Update users's profile informations
+ *          tags: [Users]
+ *          security:
+ *              - bearerAuth: []
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              firstname:
+ *                                  type: string
+ *                              lastname:
+ *                                  type: string
+ *                              email:
+ *                                  type: string
+ *          responses:
+ *              200:
+ *                  description: The user's profile informations have been successfully updated
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/User'
+ *              400:
+ *                  description: Fail to update the user's profile informations
+ */
+router.patch('/profile', authToken, validateBody(updateProfileSchema), updateProfile);
+
+/**
+ * @swagger
+ * /api/users/password:
+ *      patch:
+ *          summary: Update users's password
+ *          tags: [Users]
+ *          security:
+ *              - bearerAuth: []
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              currentPassword:
+ *                                  type: string
+ *                              newPassword:
+ *                                  type: string
+ *          responses:
+ *              200:
+ *                  description: The user's password have been successfully updated
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/components/schemas/User'
+ *              400:
+ *                  description: Fail to update the user's password
+ */
+router.patch('/password', authToken, validateBody(updatePasswordSchema), updatePassword);
 
 /**
  * @swagger
