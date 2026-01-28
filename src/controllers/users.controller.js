@@ -47,8 +47,27 @@ exports.register = async (req, res) => {
       lastname,
       roles: roles || [Role.ROLE_USER],
     });
-    await newUser.save();
-    return res.status(201).json(newUser);
+    const userSaved = await newUser.save();
+    const payload = {
+      user: {
+        id: userSaved._id,
+        email: userSaved.email,
+        roles: userSaved.roles,
+      },
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    return res.status(201).json({
+      user: {
+        id: userSaved._id,
+        email: userSaved.email,
+        firstname: userSaved.firstname,
+        lastname: userSaved.lastname,
+        roles: userSaved.roles,
+      },
+      token,
+    });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -83,7 +102,16 @@ exports.login = async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    res.status(200).json({ user: existingUser, token });
+    res.status(200).json({
+      user: {
+        id: existingUser._id,
+        email: existingUser.email,
+        firstname: existingUser.firstname,
+        lastname: existingUser.lastname,
+        roles: existingUser.roles,
+      },
+      token,
+    });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -125,8 +153,10 @@ exports.updatePassword = async (req, res) => {
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ message: "Missing fields" });
     }
-    if( currentPassword === newPassword ) {
-      return res.status(400).json({ message: "New password must be different from current password" });
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        message: "New password must be different from current password",
+      });
     }
     const user = await User.findById(userId);
     if (!user) {
