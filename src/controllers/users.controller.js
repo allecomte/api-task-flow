@@ -109,6 +109,7 @@ exports.login = async (req, res) => {
         firstname: existingUser.firstname,
         lastname: existingUser.lastname,
         roles: existingUser.roles,
+        projectsOwned : existingUser.projectsOwned
       },
       token,
     });
