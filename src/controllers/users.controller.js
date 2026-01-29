@@ -60,7 +60,7 @@ exports.register = async (req, res) => {
     });
     return res.status(201).json({
       user: {
-        id: userSaved._id,
+        _id: userSaved._id,
         email: userSaved.email,
         firstname: userSaved.firstname,
         lastname: userSaved.lastname,
@@ -104,7 +104,7 @@ exports.login = async (req, res) => {
     });
     res.status(200).json({
       user: {
-        id: existingUser._id,
+        _id: existingUser._id,
         email: existingUser.email,
         firstname: existingUser.firstname,
         lastname: existingUser.lastname,
