@@ -22,7 +22,7 @@ exports.createProject = async (req, res) => {
     if (!allMembersExist) {
       return res
         .status(400)
-        .json({ error: "One or several members do not exist" });
+        .json({ error: "Un ou plusieurs membres associés à ce projet n'existent pas" });
     }
 
     const project = new Project({
@@ -40,7 +40,7 @@ exports.createProject = async (req, res) => {
     res.status(201).json(await project.save());
   } catch (error) {
     console.log("Error POST /projects :", error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la création du projet" });
   }
 };
 
@@ -82,7 +82,7 @@ exports.getProjects = async (req, res) => {
       res.status(200).json({ data: projects, pagination: paginationInfo });
   } catch (error) {
     console.log("Error GET /projects :", error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la récupération des projets" });
   }
 };
 
@@ -92,7 +92,7 @@ exports.getProjectById = async (req, res) => {
     res.status(200).json(req.project);
   } catch (error) {
     console.log(`Error GET /projects/${id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la récupération du projet" });
   }
 };
 
@@ -110,7 +110,7 @@ exports.updateProject = async (req, res, next) => {
     res.status(200).json(await project.save());
   } catch (error) {
     console.log(`Error PATCH /projects/${id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la mise à jour du projet" });
   }
 };
 
@@ -123,7 +123,7 @@ exports.deleteProject = async (req, res, next) => {
     if (tasksCount > 0) {
       return res
         .status(400)
-        .json({ error: "Cannot delete project with existing tasks" });
+        .json({ error: "Impossible de supprimer un projet avec des tâches existantes" });
     }
     const ownerId = project.owner;
     const memberIds = project.members;
@@ -137,7 +137,7 @@ exports.deleteProject = async (req, res, next) => {
     res.status(200).json({ message: "Project deleted" });
   } catch (error) {
     console.log(`Error DELETE /projects/${id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la suppression du projet" });
   }
 };
 
@@ -150,7 +150,7 @@ exports.addOneMemberToOneProject = async (req, res, next) => {
     if (!isUserExists) {
       return res
         .status(400)
-        .json({ error: "User to be added in members does not exist" });
+        .json({ error: "L'utilisateur à ajouter dans les membres n'existe pas" });
     }
     const memberIds = project.members.map(m => String(m._id));
     if (!memberIds.includes(member)) {
@@ -158,13 +158,13 @@ exports.addOneMemberToOneProject = async (req, res, next) => {
     } else {
       return res
         .status(400)
-        .json({ error: "User is already a member of the project" });
+        .json({ error: "L'utilisateur est déjà membre du projet" });
     }
     await addOneProjectToUserMembership(member, project._id);
     res.status(200).json(await project.save());
   } catch (error) {
-    console.log(`Error DELETE /projects/${id} :`, error);
-    return res.status(500).json({ error });
+    console.log(`Error POST /projects/${id}/members :`, error);
+    return res.status(500).json({ error: "Une erreur est survenue lors de l'ajout d'un membre au projet" });
   }
 };
 
@@ -176,13 +176,13 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
     if (!isUserExists) {
       return res
         .status(400)
-        .json({ error: "User to be deleted in members does not exist" });
+        .json({ error: "L'utilisateur à supprimer des membres n'existe pas" });
     }
     const memberIds = project.members.map(member => String(member._id));
     if (!memberIds.map(String).includes(userId)) {
       return res
         .status(400)
-        .json({ error: "User is not a member of the project" });
+        .json({ error: "L'utilisateur n'est pas membre du projet" });
     }
     // Check if the member is assigned to a task in the project
     const assignedTasksCount = await Task.countDocuments({
@@ -191,7 +191,7 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
     });
     if (assignedTasksCount > 0) {
       return res.status(400).json({
-        error: "Cannot remove member assigned to tasks in the project",
+        error: "Impossible de supprimer un membre assigné à des tâches dans le projet",
       });
     }
     await removeOneProjectFromUserMembership(userId, project._id);
@@ -201,6 +201,6 @@ exports.deleteOneMemberFromOneProject = async (req, res, next) => {
     res.status(200).json(await project.save());
   } catch (error) {
     console.log(`Error DELETE /projects/${id}/members/${userId} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la suppression du membre du projet" });
   }
 };
