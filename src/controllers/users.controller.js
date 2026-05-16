@@ -9,7 +9,7 @@ exports.register = async (req, res) => {
   try {
     const { email, password, firstname, lastname, roles } = req.body;
     if (!email || !password || !firstname || !lastname) {
-      return res.status(400).json({ message: "Required elements are missing" });
+      return res.status(400).json({ message: "Des éléments obligatoires sont manquants" });
     }
     // Validate password
     const schema = new passwordValidator();
@@ -30,13 +30,13 @@ exports.register = async (req, res) => {
     if (!schema.validate(password)) {
       return res.status(400).json({
         message:
-          "Password must be at least 8 characters long, contain uppercase and lowercase letters, digits, and no spaces",
+          "Le mot de passe doit contenir au moins 8 caractères, des lettres majuscules et minuscules, des chiffres, et ne doit pas contenir d'espaces",
       });
     }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
-        message: `Can't create an account for ${email}, this email already used`,
+        message: `Impossible de créer un compte pour ${email}, cet email est déjà utilisé`,
       });
     }
     const hashPassword = await bcrypt.hash(password, 10);
@@ -69,7 +69,7 @@ exports.register = async (req, res) => {
       token,
     });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de l'inscription" });
   }
 };
 
@@ -79,18 +79,18 @@ exports.login = async (req, res) => {
     if (!email || !password) {
       return res
         .status(400)
-        .json({ message: "Email and password are required" });
+        .json({ message: "L'email et le mot de passe sont obligatoires" });
     }
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
-      return res.status(400).json({ message: "Credentials invalid" });
+      return res.status(400).json({ message: "Identifiants invalides" });
     }
     const isPasswordCorrect = await bcrypt.compare(
       password,
       existingUser.password,
     );
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Credentials invalid" });
+      return res.status(400).json({ message: "Identifiants invalides" });
     }
     const payload = {
       user: {
@@ -114,7 +114,7 @@ exports.login = async (req, res) => {
       token,
     });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la connexion" });
   }
 };
 
@@ -123,11 +123,11 @@ exports.getProfile = async (req, res) => {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Utilisateur introuvable" });
     }
     res.status(200).json(user);
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la récupération du profil" });
   }
 };
 
@@ -143,7 +143,7 @@ exports.updateProfile = async (req, res) => {
     });
     res.status(200).json(await user.save());
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la mise à jour du profil" });
   }
 };
 
@@ -152,20 +152,20 @@ exports.updatePassword = async (req, res) => {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: "Missing fields" });
+      return res.status(400).json({ message: "Des champs sont manquants" });
     }
     if (currentPassword === newPassword) {
       return res.status(400).json({
-        message: "New password must be different from current password",
+        message: "Le nouveau mot de passe doit être différent du mot de passe actuel",
       });
     }
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Utilisateur introuvable" });
     }
     const isValid = await bcrypt.compare(currentPassword, user.password);
     if (!isValid) {
-      return res.status(401).json({ message: "Current password is incorrect" });
+      return res.status(401).json({ message: "Le mot de passe actuel est incorrect" });
     }
     const schema = new passwordValidator();
     schema
@@ -185,14 +185,14 @@ exports.updatePassword = async (req, res) => {
 
     if (!schema.validate(newPassword)) {
       return res.status(400).json({
-        message: "New password does not meet security requirements",
+        message: "Le nouveau mot de passe ne respecte pas les exigences de sécurité",
       });
     }
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
-    return res.status(200).json({ message: "Password updated successfully" });
+    return res.status(200).json({ message: "Mot de passe mis à jour avec succès" });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la mise à jour du mot de passe" });
   }
 };
 
@@ -201,6 +201,6 @@ exports.getUsers = async (req, res) => {
     const users = await User.find().select("-password");
     res.status(200).json(users);
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la récupération des utilisateurs" });
   }
 };

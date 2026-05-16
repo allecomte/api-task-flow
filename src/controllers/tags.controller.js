@@ -20,7 +20,7 @@ exports.createTag = async (req, res) => {
     res.status(201).json(tagCreated);
   } catch (error) {
     console.log(`Error POST /projects/${project.id}/tags :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la création du tag" });
   }
 };
 
@@ -33,7 +33,7 @@ exports.getTagsByProject = async (req, res) => {
     res.status(200).json(tags);
   } catch (error) {
     console.log(`Error GET /projects/${project.id}/tags :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la récupération des tags" });
   }
 };
 
@@ -66,7 +66,7 @@ exports.updateTag = async (req, res) => {
     res.status(201).json(await tag.save());
   } catch (error) {
     console.log(`Error PATCH tags/${tag.id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la mise à jour du tag" });
   }
 };
 
@@ -86,6 +86,6 @@ exports.deleteTag = async (req, res) => {
     res.status(200).json({ message: "Tag deleted successfully" });
   } catch (error) {
     console.log(`Error DELETE tags/${id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la suppression du tag" });
   }
 };

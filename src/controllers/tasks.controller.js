@@ -20,17 +20,17 @@ exports.createTask = async (req, res) => {
     const { project, assignee, tags, dueAt } = req.body;
     const projectAssociated = await Project.findById(project);
     if (!projectAssociated) {
-      return res.status(400).json({ error: "Project does not exist" });
+      return res.status(400).json({ error: "Le projet associé à cette tâche n'existe pas" });
     }
     if (projectAssociated.owner.toString() !== req.user.id) {
       return res.status(403).json({
         error:
-          "Not authorized to add tasks to this project, only project's owner can do this action",
+          "Non autorisé à ajouter des tâches à ce projet. Seul le propriétaire du projet peut effectuer cette action",
       });
     }
     const assigneeExists = assignee ? await existsById(User, assignee) : true;
     if (!assigneeExists) {
-      return res.status(400).json({ error: "Assignee does not exist" });
+      return res.status(400).json({ error: "L'utilisateur assigné n'existe pas" });
     }
     if (
       assignee !== undefined &&
@@ -38,20 +38,20 @@ exports.createTask = async (req, res) => {
     ) {
       return res
         .status(400)
-        .json({ error: "Assignee is not a member of the task's project" });
+        .json({ error: "L'utilisateur assigné n'est pas membre du projet associé à cette tâche" });
     }
     const tagsExist = tags ? await allExistByIds(Tag, tags) : true;
     if (!tagsExist) {
       return res
         .status(400)
-        .json({ error: "One or several tags do not exist" });
+        .json({ error: "Un ou plusieurs tags n'existent pas" });
     }
     if (
       projectAssociated.startAt > dueAt ||
       (projectAssociated.endAt !== null && projectAssociated.endAt < dueAt)
     ) {
       return res.status(400).json({
-        error: "Task due date must be within the project's start and end dates",
+        error: "La date d'échéance de la tâche doit être comprise entre les dates de début et de fin du projet",
       });
     }
     const task = new Task({
@@ -73,7 +73,7 @@ exports.createTask = async (req, res) => {
     // res.status(201).json(taskCreated);
   } catch (error) {
     console.log("Error POST /tasks :", error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la création de la tâche" });
   }
 };
 
@@ -112,7 +112,7 @@ exports.getTasks = async (req, res) => {
     res.status(200).json({ data: tasks, pagination: paginatioInfo });
   } catch (error) {
     console.log("Error GET /tasks :", error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la récupération des tâches" });
   }
 };
 
@@ -122,7 +122,7 @@ exports.getTaskById = async (req, res) => {
     res.status(200).json(req.task);
   } catch (error) {
     console.log(`Error GET /tasks/${id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la récupération de la tâche" });
   }
 };
 
@@ -143,18 +143,18 @@ exports.updateTask = async (req, res) => {
     ) {
       return res.status(403).json({
         error:
-          "Only project owner can update these fields: title, description, due date, assignee, tags, priority",
+          "Seul le propriétaire du projet peut mettre à jour ces champs: title, description, due date, assignee, tags, priority",
       });
     }
     if (assignee !== undefined) {
       const assigneeExists = assignee ? await existsById(User, assignee) : true;
       if (!assigneeExists) {
-        return res.status(400).json({ error: "Assignee does not exist" });
+        return res.status(400).json({ error: "L'utilisateur assigné n'existe pas" });
       }
       if (!req.project.members.map(String).includes(assignee)) {
         return res
           .status(400)
-          .json({ error: "Assignee is not a member of the task's project" });
+          .json({ error: "L'utilisateur assigné n'est pas membre du projet associé à cette tâche" });
       }
       if (task.assignee && task.assignee.toString() !== assignee) {
         // Remove task from previous assignee
@@ -171,7 +171,7 @@ exports.updateTask = async (req, res) => {
       if (!tagsExist) {
         return res
           .status(400)
-          .json({ error: "One or several tags do not exist" });
+          .json({ error: "Un ou plusieurs tags n'existent pas" });
       }
     }
     if (
@@ -180,7 +180,7 @@ exports.updateTask = async (req, res) => {
         (req.project.endAt !== null && req.project.endAt < dueAt))
     ) {
       return res.status(400).json({
-        error: "Task due date must be within the project's start and end dates",
+        error: "La date d'échéance de la tâche doit être comprise entre les dates de début et de fin du projet",
       });
     }
     Object.assign(task, {
@@ -199,7 +199,7 @@ exports.updateTask = async (req, res) => {
     res.status(200).json(updatedTask);
   } catch (error) {
     console.log(`Error PATCH /tasks/${id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la mise à jour de la tâche" });
   }
 };
 
@@ -215,7 +215,7 @@ exports.deleteTask = async (req, res) => {
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     console.log(`Error DELETE /tasks/${id} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de la suppression de la tâche" });
   }
 };
 
@@ -244,6 +244,6 @@ exports.associateOrDissociateTagToTask = async (req, res) => {
     });
   } catch (error) {
     console.log(`Error POST /tasks/${id}/tags/${tagId} :`, error);
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: "Une erreur est survenue lors de l'association ou de la dissociation du tag à la tâche" });
   }
 };
