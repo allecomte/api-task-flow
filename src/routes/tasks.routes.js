@@ -241,6 +241,6 @@ router.delete('/:id', authRoles([Role.ROLE_MANAGER]), validId(), getTaskWithAcce
  *              400:
  *                  description: Fail to associate or dissociate the tag to the task
  */
-router.post('/:id/tags/:tagId', authRoles([Role.ROLE_MANAGER]), validId('id','tagId'), getTaskWithAccess(Access.ONLY_PROJECT_OWNER),associateOrDissociateTagToTask);
+router.post('/:id/tags/:tagId', validId('id','tagId'), getTaskWithAccess(Access.ASSIGNEE_AND_PROJECT_OWNER),associateOrDissociateTagToTask);
 
 module.exports = router;
